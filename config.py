@@ -15,7 +15,7 @@ class Config:
 
     # Session Configuration
     SESSION_TYPE = 'filesystem'
-    PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+    PERMANENT_SESSION_LIFETIME = timedelta(days=1)
 
     # Security Configuration
     SESSION_COOKIE_SECURE = True
