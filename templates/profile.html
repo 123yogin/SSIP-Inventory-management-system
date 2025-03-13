@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #4f46e5;
+            --accent-color: #3b82f6;
+            --text-color: #1e293b;
+            --light-text: #64748b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .profile-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .profile-header {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .image-upload-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--card-bg);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .upload-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+        }
+        
+        .upload-btn:hover {
+            background: var(--secondary-color);
+            transform: scale(1.05);
+        }
+        
+        .profile-info {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .profile-info h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+        
+        .profile-info h2 {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+        
+        .profile-info p {
+            color: var(--light-text);
+            margin-bottom: 16px;
+        }
+        
+        .edit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .edit-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .profile-details {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+        
+        .profile-details h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: var(--text-color);
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .profile-details p {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .profile-details strong {
+            min-width: 140px;
+            display: inline-block;
+            color: var(--light-text);
+        }
+        
+        .profile-details a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .profile-details a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+        
+        .icon {
+            margin-right: 10px;
+            color: var(--primary-color);
+            width: 20px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .profile-info {
+                min-width: 100%;
+            }
+            
+            .profile-details strong {
+                min-width: 100px;
+            }
+        }
+
+        nav {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-list li a {
+            text-decoration: none;
+            color: var(--light-text);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-list li a:hover {
+            color: var(--primary-color);
+            background-color: var(--bg-color);
+        }
+
+        .nav-list li.active a {
+            color: var(--primary-color);
+            background-color: var(--bg-color);
+        }
+
+        @media (max-width: 768px) {
+            .nav-list {
+                justify-content: center;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Navigation -->
+    <nav>
+        <div class="container">
+            <ul class="nav-list">
+                <li  class="active"><a href="{{ ('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ ('inventory') }}">Inventory Management</a></li>
+               
+                <li><a href="#analytics">Predictive Analytics</a></li>
+                <li><a href="{{ ('procurment') }}">Procurement</a></li>
+                <li><a href="{{ ('report') }}">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="image-upload-container">
+                <img src="icon.jpg" alt="Employee Picture" class="profile-img" id="profile-preview">
+                <input type="file" id="image-upload" accept="image/*" style="display: none">
+                <button class="upload-btn" onclick="triggerImageUpload()" title="Change photo">
+                    <i class="fas fa-camera"></i>
+                </button>
+            </div>
+            
+            <div class="profile-info">
+                <h1 id="employee-name">ABC</h1>
+                <h2 id="job-title">Software Engineer</h2>
+                <p id="department">CE Department</p>
+                <button class="edit-btn" onclick="editProfile()">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </button>
+            </div>
+        </div>
+
+        <div class="profile-details">
+            <h3>Employee Details</h3>
+            <p>
+                <i class="fas fa-id-badge icon"></i>
+                <strong>Employee ID:</strong> 
+                <span id="employee-id">EMP-12345</span>
+            </p>
+            <p>
+                <i class="fas fa-calendar-alt icon"></i>
+                <strong>Joining Date:</strong> 
+                <span id="joining-date">March 15, 2021</span>
+            </p>
+        </div>
+
+        <div class="profile-details">
+            <h3>Contact Information</h3>
+            <p>
+                <i class="fas fa-envelope icon"></i>
+                <strong>Email:</strong> 
+                <a href="mailto:ABC@example.com">ABC@example.com</a>
+            </p>
+            <p>
+                <i class="fas fa-phone-alt icon"></i>
+                <strong>Phone:</strong> 
+                <span>+91 8657896439</span>
+            </p>
+        </div>
+    </div>
+
+    <script src="static\js\profile.js"></script>
+    <script>
+        function triggerImageUpload() {
+            document.getElementById('image-upload').click();
+        }
+
+        document.getElementById('image-upload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Check if file is an image
+                if (!file.type.startsWith('image/')) {
+                    alert('Please upload an image file');
+                    return;
+                }
+                
+                // Check file size (limit to 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size should be less than 5MB');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profile-preview').src = e.target.result;
+                    // Show success notification
+                    showNotification('Profile picture updated successfully!');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function editProfile() {
+            // Create modal for editing profile
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close-btn">&times;</span>
+                    <h2>Edit Profile</h2>
+                    <form id="edit-profile-form">
+                        <div class="form-group">
+                            <label for="edit-name">Full Name</label>
+                            <input type="text" id="edit-name" value="${document.getElementById('employee-name').textContent}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-job">Job Title</label>
+                            <input type="text" id="edit-job" value="${document.getElementById('job-title').textContent}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-department">Department</label>
+                            <input type="text" id="edit-department" value="${document.getElementById('department').textContent}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-email">Email</label>
+                            <input type="email" id="edit-email" value="${document.querySelector('.profile-details a').textContent}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-phone">Phone</label>
+                            <input type="tel" id="edit-phone" value="${document.querySelector('.profile-details span:last-child').textContent}" required>
+                        </div>
+                        <button type="submit" class="save-btn">Save Changes</button>
+                    </form>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close modal when clicking the X
+            modal.querySelector('.close-btn').addEventListener('click', function() {
+                document.body.removeChild(modal);
+            });
+            
+            // Close modal when clicking outside the content
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            });
+            
+            // Handle form submission
+            document.getElementById('edit-profile-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Update profile information
+                document.getElementById('employee-name').textContent = document.getElementById('edit-name').value;
+                document.getElementById('job-title').textContent = document.getElementById('edit-job').value;
+                document.getElementById('department').textContent = document.getElementById('edit-department').value;
+                document.querySelector('.profile-details a').textContent = document.getElementById('edit-email').value;
+                document.querySelector('.profile-details a').href = 'mailto:' + document.getElementById('edit-email').value;
+                document.querySelector('.profile-details span:last-child').textContent = document.getElementById('edit-phone').value;
+                
+                // Close modal
+                document.body.removeChild(modal);
+                
+                // Show success notification
+                showNotification('Profile updated successfully!');
+            });
+        }
+        
+        function showNotification(message) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <div style="background-color: var(--success-color); color: white; padding: 12px 20px; 
+                     border-radius: 8px; position: fixed; bottom: 20px; right: 20px; 
+                     box-shadow: var(--shadow); display: flex; align-items: center; gap: 10px;
+                     animation: slideIn 0.3s ease-out forwards;">
+                    <i class="fas fa-check-circle"></i>
+                    ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out forwards';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+        
+        // Add animations to the document
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Add modal styles to the document
+        const modalStyle = document.createElement('style');
+        modalStyle.textContent = `
+            .modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                animation: fadeIn 0.3s ease-out;
+            }
+            
+            .modal-content {
+                background-color: var(--card-bg);
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: var(--shadow);
+                width: 90%;
+                max-width: 500px;
+                position: relative;
+                animation: slideDown 0.3s ease-out;
+            }
+            
+            .close-btn {
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                font-size: 24px;
+                cursor: pointer;
+                color: var(--light-text);
+                transition: color 0.2s;
+            }
+            
+            .close-btn:hover {
+                color: var(--text-color);
+            }
+            
+            .form-group {
+                margin-bottom: 20px;
+            }
+            
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 500;
+                color: var(--text-color);
+            }
+            
+            .form-group input {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                font-size: 16px;
+                transition: border-color 0.2s;
+            }
+            
+            .form-group input:focus {
+                border-color: var(--primary-color);
+                outline: none;
+            }
+            
+            .save-btn {
+                background-color: var(--primary-color);
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 500;
+                width: 100%;
+                font-size: 16px;
+                transition: background-color 0.2s;
+            }
+            
+            .save-btn:hover {
+                background-color: var(--secondary-color);
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            @keyframes slideDown {
+                from { transform: translateY(-50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(modalStyle);
+    </script>
+</body>
+</html>

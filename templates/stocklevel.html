@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLTPS Lignite Stock Levels - Coal Inventory Management</title>
+    <link rel="stylesheet" href="static/varstyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
+    <style>
+        /* Header CSS */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-icon .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .profile-dropdown {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+
+        .profile-btn img {
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            list-style: none;
+            padding: 10px;
+            width: 160px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu li {
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-menu li:hover {
+            background: #f1f1f1;
+        }
+
+        .dropdown-menu a {
+            color: #333;
+            text-decoration: none;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with logo and user info -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Gujarat_State_Electricity_Corporation_Limited_Logo.jpg/450px-Gujarat_State_Electricity_Corporation_Limited_Logo.jpg" alt="GSECL Logo">
+                <h1>GSECL Coal Inventory Management</h1>
+            </div>
+            <div class="user-info">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count">3</span>
+                </div>
+                <div class="notification-icon">
+                    <i class="fas fa-envelope"></i>
+                    <span class="notification-count">5</span>
+                </div>
+                
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <button class="profile-btn">
+                        <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User">
+                        <span id="username">Admin User</span>
+                        <i class="fas fa-caret-down"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> Profile</a></li>
+                        <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Navigation -->
+    <nav>
+        <div class="container">
+            <ul class="nav-list">
+                <li><a href="{{ ('dashboard') }}">Dashboard</a></li>
+                <li class="active"><a href="{{ ('inventory') }}">Inventory Management</a></li>
+                <li><a href="#analytics">Predictive Analytics</a></li>
+                <li><a href="{{ ('procurment') }}">Procurement</a></li>
+                <li><a href="{{ ('report') }}">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Main Content Area -->
+    <div class="container main-content">
+        <!-- Sidebar with menu options -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#overview"><i class="fas fa-home"></i> Overview</a></li>
+                <li><a href="#ai-predictions"><i class="fas fa-chart-line"></i> AI Predictions</a></li>
+                <li class="active"><a href="{{ ('inventory') }}"><i class="fas fa-warehouse"></i> Stock Levels</a></li>
+                <li><a href="{{ ('transport_management') }}"><i class="fas fa-truck-moving"></i> Transport Management</a></li>
+                <li><a href="#train-logistics"><i class="fas fa-train"></i> Train Logistics</a></li>
+                <li><a href="#oil-inventory"><i class="fas fa-oil-can"></i> Oil Inventory</a></li>
+                <li><a href="{{ ('deliveries') }}"><i class="fas fa-truck"></i> Deliveries</a></li>
+                <li><a href="{{ ('contracts') }}"><i class="fas fa-file-contract"></i> Contracts</a></li>
+                <li><a href="{{ ('hazard_management') }}"><i class="fas fa-exclamation-triangle"></i> Hazard Management</a></li>
+                <li><a href="{{ ('stock_history') }}"><i class="fas fa-history"></i> Stock History</a></li>
+                <li><a href="#pricing"><i class="fas fa-dollar-sign"></i> Pricing Analysis</a></li>
+                <li><a href="#reports-analytics"><i class="fas fa-file-alt"></i> Reports & Analytics</a></li>
+            </ul>
+        </aside>
+        
+        <!-- Main dashboard content -->
+        <main class="content">
+            <!-- Page Header with breadcrumbs -->
+            <div class="page-header">
+                <div class="breadcrumbs">
+                    <a href="#dashboard">Dashboard</a> / 
+                    <a href="#inventory">Inventory</a> / 
+                    <span>Stock Levels</span>
+                </div>
+                <div class="page-actions">
+                    <button class="btn-primary" onclick="printReport()"><i class="fas fa-print"></i> Print Report</button>
+                    <button class="btn-secondary" onclick="downloadExcel()"><i class="fas fa-download"></i> Export Data</button>
+                </div>
+            </div>
+            
+            <!-- Latest Status Highlight Card -->
+            <div class="status-highlight">
+                <div class="highlight-header">
+                    <div class="title-section">
+                        <h2>BLTPS Resource Status</h2>
+                        <span class="update-badge">Updated: March 7, 2025</span>
+                    </div>
+                    <div class="status-indicator-large">
+                        <div class="indicator-light green"></div>
+                        <span>Healthy Stock Levels</span>
+                    </div>
+                </div>
+                
+                <div class="highlight-content">
+                    <div class="summary-tiles">
+                        <!-- Coal/Lignite Section -->
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-warehouse"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value"><input type="number" id="coal-stock" value="49513.27" step="any"> MT</div>
+                                <div class="tile-label">Coal Stock</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-oil-can"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value"><input type="number" id="oil-stock" value="2850.50" step="any"> KL</div>
+                                <div class="tile-label">Oil Stock</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-calendar-day"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value" id="coal-sufficiency">14.9 Days</div>
+                                <div class="tile-label">Coal Sufficiency</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Transport Status -->
+                    <div class="summary-tiles transport-status">
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-truck-moving"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value"><input type="number" id="trucks-movement" value="225"> Trucks</div>
+                                <div class="tile-label">Today's Truck Movement</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-train"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value"><input type="number" id="train-movement" value="8"> Rakes</div>
+                                <div class="tile-label">Today's Train Movement</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-conveyor-belt"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value"><input type="number" id="conveyor-receipt" value="4555.88" step="any"> MT</div>
+                                <div class="tile-label">Conveyor Receipt</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-fire"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value"><input type="number" id="daily-consumption" value="3323.72" step="any"> MT</div>
+                                <div class="tile-label">Today's Consumption</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Daily Stock Update Card -->
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Daily Lignite Stock Status (March 7, 2025)</h2>
+                        <div class="actions">
+                            <button><i class="fas fa-sync-alt"></i></button>
+                            <button><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="stock-table-container">
+                        <table class="stock-table" id="daily-stock-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Value (MT)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Opening Stock</td>
+                                    <td><input type="number" id="opening-stock" value="48281.11" step="any"></td>
+                                </tr>
+                                <tr>
+                                    <td>Received through Trucks</td>
+                                    <td><input type="number" id="received-trucks" value="0.00" step="any"></td>
+                                </tr>
+                                <tr>
+                                    <td>Received through Conveyor</td>
+                                    <td><input type="number" id="received-conveyor" value="4555.88" step="any"></td>
+                                </tr>
+                                <tr>
+                                    <td>Total Received</td>
+                                    <td id="total-received">4555.88</td>
+                                </tr>
+                                <tr>
+                                    <td>Consumption</td>
+                                    <td id="consumption">3323.72</td>
+                                </tr>
+                                <tr class="highlight-row">
+                                    <td>Closing Stock</td>
+                                    <td id="closing-stock">49513.27</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Monthly Stock Update Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Monthly Lignite Stock Status (March 2025)</h2>
+                        <div class="actions">
+                            <button><i class="fas fa-sync-alt"></i></button>
+                            <button><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="stock-table-container">
+                        <table class="stock-table" id="monthly-stock-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Value (MT)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Opening Stock (March 1)</td>
+                                    <td><input type="number" id="monthly-opening-stock" value="41497.00" step="any"></td>
+                                </tr>
+                                <tr>
+                                    <td>Received through Trucks</td>
+                                    <td><input type="number" id="monthly-received-trucks" value="0.00" step="any"></td>
+                                </tr>
+                                <tr>
+                                    <td>Received through Conveyor</td>
+                                    <td><input type="number" id="monthly-received-conveyor" value="32107.94" step="any"></td>
+                                </tr>
+                                <tr>
+                                    <td>Total Received</td>
+                                    <td id="monthly-total-received">32107.94</td>
+                                </tr>
+                                <tr>
+                                    <td>Consumption</td>
+                                    <td id="monthly-consumption">24091.67</td>
+                                </tr>
+                                <tr class="highlight-row">
+                                    <td>Current Stock</td>
+                                    <td id="monthly-current-stock">49513.27</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Daily Receipt Details -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Daily Coal Receipt via Pipe Conveyor (March 2025)</h2>
+                    <div class="actions">
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="receipt-table" id="daily-receipt-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Number of Trucks</th>
+                                <th>Quantity (MT)</th>
+                                <th>Daily Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="highlight-row">
+                                <td>March 7, 2025</td>
+                                <td><input type="number" id="daily-trucks-0" value="225"></td>
+                                <td><input type="number" id="daily-quantity-0" value="4555.88" step="any"></td>
+                                <td><span class="badge badge-success">+1.8%</span></td>
+                            </tr>
+                            <tr>
+                                <td>March 6, 2025</td>
+                                <td><input type="number" id="daily-trucks-1" value="221"></td>
+                                <td><input type="number" id="daily-quantity-1" value="4474.11" step="any"></td>
+                                <td><span class="badge badge-success">+4.2%</span></td>
+                            </tr>
+                            <tr>
+                                <td>March 5, 2025</td>
+                                <td><input type="number" id="daily-trucks-2" value="212"></td>
+                                <td><input type="number" id="daily-quantity-2" value="4293.50" step="any"></td>
+                                <td><span class="badge badge-danger">-1.9%</span></td>
+                            </tr>
+                            <tr>
+                                <td>March 4, 2025</td>
+                                <td><input type="number" id="daily-trucks-3" value="215"></td>
+                                <td><input type="number" id="daily-quantity-3" value="4375.32" step="any"></td>
+                                <td><span class="badge badge-danger">-1.0%</span></td>
+                            </tr>
+                            <tr>
+                                <td>March 3, 2025</td>
+                                <td><input type="number" id="daily-trucks-4" value="218"></td>
+                                <td><input type="number" id="daily-quantity-4" value="4419.48" step="any"></td>
+                                <td><span class="badge badge-success">+2.4%</span></td>
+                            </tr>
+                            <tr>
+                                <td>March 2, 2025</td>
+                                <td><input type="number" id="daily-trucks-5" value="213"></td>
+                                <td><input type="number" id="daily-quantity-5" value="4314.91" step="any"></td>
+                                <td><span class="badge badge-danger">-24.0%</span></td>
+                            </tr>
+                            <tr>
+                                <td>March 1, 2025</td>
+                                <td><input type="number" id="daily-trucks-6" value="282"></td>
+                                <td><input type="number" id="daily-quantity-6" value="5674.74" step="any"></td>
+                                <td><span class="badge badge-warning">First Day</span></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td><strong>Monthly Total</strong></td>
+                                <td><strong id="monthly-total-trucks">1,586 trucks</strong></td>
+                                <td><strong id="monthly-total-quantity">32,107.94 MT</strong></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Gujarat State Electricity Corporation Limited (GSECL). All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Mobile menu script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.createElement('button');
+            mobileMenuToggle.className = 'mobile-menu-toggle';
+            mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('sidebar-hidden');
+                document.querySelector('.content').before(mobileMenuToggle);
+            }
+            
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-hidden');
+                sidebar.classList.toggle('sidebar-visible');
+            });
+            
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    if (!document.querySelector('.mobile-menu-toggle')) {
+                        document.querySelector('.content').before(mobileMenuToggle);
+                    }
+                    sidebar.classList.add('sidebar-hidden');
+                    sidebar.classList.remove('sidebar-visible');
+                } else {
+                    sidebar.classList.remove('sidebar-hidden');
+                    sidebar.classList.remove('sidebar-visible');
+                    if (document.querySelector('.mobile-menu-toggle')) {
+                        document.querySelector('.mobile-menu-toggle').remove();
+                    }
+                }
+            });
+
+            // Add dropdown functionality
+            const profileBtn = document.querySelector('.profile-btn');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            profileBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileBtn.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+        });
+        
+        // Add click event listeners to nav items
+        document.querySelectorAll('.nav-list li a, .sidebar-menu li a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all items
+                if (this.closest('.nav-list')) {
+                    document.querySelectorAll('.nav-list li').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    this.closest('li').classList.add('active');
+                }
+                
+                if (this.closest('.sidebar-menu')) {
+                    document.querySelectorAll('.sidebar-menu li').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    this.closest('li').classList.add('active');
+                }
+                
+                // If on mobile, auto-close the sidebar
+                if (window.innerWidth <= 768 && this.closest('.sidebar-menu')) {
+                    document.querySelector('.sidebar').classList.remove('sidebar-visible');
+                    document.querySelector('.sidebar').classList.add('sidebar-hidden');
+                }
+                
+                // Smoothly scroll to top on navigation
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+
+    <script>
+        // Function to update daily stock values
+        function updateDailyStockValues() {
+            const openingStock = parseFloat(document.getElementById('opening-stock').value);
+            const receivedTrucks = parseFloat(document.getElementById('received-trucks').value);
+            const receivedConveyor = parseFloat(document.getElementById('received-conveyor').value);
+            const consumption = parseFloat(document.getElementById('daily-consumption').value);
+
+            const totalReceived = receivedTrucks + receivedConveyor;
+            const closingStock = openingStock + totalReceived - consumption;
+
+            document.getElementById('total-received').textContent = totalReceived.toFixed(2);
+            document.getElementById('consumption').textContent = consumption.toFixed(2);
+            document.getElementById('closing-stock').textContent = closingStock.toFixed(2);
+
+            // Update coal sufficiency
+            const coalStock = parseFloat(document.getElementById('coal-stock').value);
+            const coalSufficiency = (coalStock / consumption).toFixed(1);
+            document.getElementById('coal-sufficiency').textContent = `${coalSufficiency} Days`;
+        }
+
+        // Function to update monthly stock values
+        function updateMonthlyStockValues() {
+            const monthlyOpeningStock = parseFloat(document.getElementById('monthly-opening-stock').value);
+            const monthlyReceivedTrucks = parseFloat(document.getElementById('monthly-received-trucks').value);
+            const monthlyReceivedConveyor = parseFloat(document.getElementById('monthly-received-conveyor').value);
+            const monthlyConsumption = parseFloat(document.getElementById('monthly-consumption').value);
+
+            const monthlyTotalReceived = monthlyReceivedTrucks + monthlyReceivedConveyor;
+            const monthlyCurrentStock = monthlyOpeningStock + monthlyTotalReceived - monthlyConsumption;
+
+            document.getElementById('monthly-total-received').textContent = monthlyTotalReceived.toFixed(2);
+            document.getElementById('monthly-consumption').textContent = monthlyConsumption.toFixed(2);
+            document.getElementById('monthly-current-stock').textContent = monthlyCurrentStock.toFixed(2);
+        }
+
+        // Function to update daily receipt totals
+        function updateDailyReceiptTotals() {
+            let totalTrucks = 0;
+            let totalQuantity = 0;
+
+            const rows = document.querySelectorAll('.receipt-table tbody tr');
+            rows.forEach((row, index) => {
+                const trucks = parseFloat(row.querySelector(`#daily-trucks-${index}`).value);
+                const quantity = parseFloat(row.querySelector(`#daily-quantity-${index}`).value);
+
+                totalTrucks += trucks;
+                totalQuantity += quantity;
+            });
+
+            document.getElementById('monthly-total-trucks').textContent = `${totalTrucks} trucks`;
+            document.getElementById('monthly-total-quantity').textContent = `${totalQuantity.toFixed(2)} MT`;
+        }
+
+        // Event listeners for input changes
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', () => {
+                updateDailyStockValues();
+                updateMonthlyStockValues();
+                updateDailyReceiptTotals(); // Update daily receipt totals
+            });
+        });
+
+        // Initial calculation
+        updateDailyStockValues();
+        updateMonthlyStockValues();
+        updateDailyReceiptTotals(); // Initial calculation for daily receipt totals
+
+        // Function to print the report
+        function printReport() {
+            printJS({
+                printable: 'main-content',
+                type: 'html',
+                targetStyles: ['*'],
+                header: 'BLTPS Lignite Stock Levels - Coal Inventory Management',
+                headerStyle: 'font-size: 20px; font-weight: bold; margin-bottom: 10px;'
+            });
+        }
+
+        // Function to download the report as an Excel file
+        function downloadExcel() {
+            const workbook = XLSX.utils.book_new();
+
+            // Daily Stock Table
+            const dailyStockTable = document.getElementById('daily-stock-table');
+            const dailyStockData = XLSX.utils.table_to_sheet(dailyStockTable);
+            XLSX.utils.book_append_sheet(workbook, dailyStockData, 'Daily Stock');
+
+            // Monthly Stock Table
+            const monthlyStockTable = document.getElementById('monthly-stock-table');
+            const monthlyStockData = XLSX.utils.table_to_sheet(monthlyStockTable);
+            XLSX.utils.book_append_sheet(workbook, monthlyStockData, 'Monthly Stock');
+
+            // Daily Receipt Table
+            const dailyReceiptTable = document.getElementById('daily-receipt-table');
+            const dailyReceiptData = XLSX.utils.table_to_sheet(dailyReceiptTable);
+            XLSX.utils.book_append_sheet(workbook, dailyReceiptData, 'Daily Receipt');
+
+            // Generate Excel file
+            XLSX.writeFile(workbook, 'BLTPS_Lignite_Stock_Levels.xlsx');
+        }
+    </script>
+</body>
+</html>

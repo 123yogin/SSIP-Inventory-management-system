@@ -73,3 +73,79 @@ def dashboard():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html')
+
+@app.route('/alert')
+@login_required
+def alert():
+    return render_template('alert.html')
+
+@app.route('/weather')
+@login_required
+def weather():
+    return render_template('weather.html')
+
+@app.route('/calendar')
+@login_required
+def calendar():
+    return render_template('calendar.html')
+
+@app.route('/inventory')
+@login_required
+def inventory():
+    return render_template('index.html')
+
+@app.route('/contracts')
+@login_required
+def contracts():
+    return render_template('contracts.html')
+
+@app.route('/deliveries')
+@login_required
+def deliveries():
+    return render_template('deliveries.html')
+
+@app.route('/hazard_management')
+@login_required
+def hazard_management():
+    return render_template('hazard_management.html')
+
+@app.route('/stock')
+@login_required
+def stock():
+    return render_template('inventory.html')
+
+@app.route('/procurment')
+@login_required
+def procurement():
+    return render_template('procurment.html')
+
+@app.route('/report')
+@login_required
+def report():
+    return render_template('report.html')
+
+@app.route('/stock_history')
+@login_required
+def stock_history():
+    return render_template('stock_history.html')
+
+@app.route('/stocklevel')
+@login_required
+def stocklevel():
+    return render_template('stocklevel.html')
+
+@app.route('/setting')
+@login_required
+def setting():
+    return render_template('sys_setting.html')
+
+@app.route('/transport_management')
+@login_required
+def transport_management():
+    return render_template('transport_management.html')
+

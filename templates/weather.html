@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Impact - GSECL Coal Inventory Management</title>
+    <link rel="stylesheet" href="static\dashboard.css">
+    <link rel="stylesheet" href="static/varstyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Header CSS */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-icon .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .profile-dropdown {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+
+        .profile-btn img {
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            list-style: none;
+            padding: 10px;
+            width: 160px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu li {
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-menu li:hover {
+            background: #f1f1f1;
+        }
+
+        .dropdown-menu a {
+            color: #333;
+            text-decoration: none;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with logo and user info -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Gujarat_State_Electricity_Corporation_Limited_Logo.jpg/450px-Gujarat_State_Electricity_Corporation_Limited_Logo.jpg" alt="GSECL Logo">
+                <h1>GSECL Coal Inventory Management</h1>
+            </div>
+            <div class="user-info">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count">3</span>
+                </div>
+                <div class="notification-icon">
+                    <i class="fas fa-envelope"></i>
+                    <span class="notification-count">5</span>
+                </div>
+                
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <button class="profile-btn">
+                        <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User">
+                        <span id="username">Admin User</span>
+                        <i class="fas fa-caret-down"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> Profile</a></li>
+                        <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Navigation -->
+    <nav>
+        <div class="container">
+            <ul class="nav-list">
+                <li class="active"><a href="{{ ('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ ('inventory') }}">Inventory Management</a></li>
+                <li><a href="#analytics">Predictive Analytics</a></li>
+                <li><a href="{{ ('procurment') }}">Procurement</a></li>
+                <li><a href="{{ ('report') }}">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="container main-content">
+        <!-- Sidebar with menu options -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="{{ ('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Summary</a></li>
+                <li><a href="{{ ('alert') }}"><i class="fas fa-exclamation-circle"></i> Alerts</a></li>
+                <li class="active"><a href="{{ ('weather') }}"><i class="fas fa-cloud-sun"></i> Weather Impact</a></li>
+                <li><a href="{{ ('calendar') }}"><i class="fas fa-calendar-alt"></i> Calendar</a></li>
+            </ul>
+        </aside>
+        
+        <!-- Main dashboard content -->
+        <main class="content" style="width: 9%;">
+            <!-- Page Header with breadcrumbs -->
+            <div class="page-header">
+                <div class="breadcrumbs">
+                    <span><a href="{{ ('dashboard') }}">Dashboard</a> > Weather Impact</span>
+                </div>
+                <div class="page-actions">
+                    <button class="btn-primary"><i class="fas fa-sync-alt"></i> Refresh Data</button>
+                    <button class="btn-secondary"><i class="fas fa-download"></i> Export</button>
+                </div>
+            </div>
+
+            <!-- Weather Overview -->
+            <div class="card" style="width: 100%;">
+                <div class="card-header">
+                    <h2>Current Weather Overview</h2>
+                    <div class="actions">
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="current-weather">
+                        <div class="weather-current-left">
+                            <div class="weather-current-icon">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <div class="weather-current-info">
+                                <div class="weather-current-temp">36°C</div>
+                                <div class="weather-current-desc">Clear Sky</div>
+                                <div class="weather-current-loc">BLTPS Area, Gujarat</div>
+                                <div class="weather-current-date">March 11, 2025 | 10:30 AM</div>
+                            </div>
+                        </div>
+                        <div class="weather-current-details">
+                            <div class="weather-detail-item">
+                                <div class="detail-label"><i class="fas fa-wind"></i> Wind</div>
+                                <div class="detail-value">12 km/h</div>
+                            </div>
+                            <div class="weather-detail-item">
+                                <div class="detail-label"><i class="fas fa-tint"></i> Humidity</div>
+                                <div class="detail-value">45%</div>
+                            </div>
+                            <div class="weather-detail-item">
+                                <div class="detail-label"><i class="fas fa-thermometer-half"></i> Feels Like</div>
+                                <div class="detail-value">38°C</div>
+                            </div>
+                            <div class="weather-detail-item">
+                                <div class="detail-label"><i class="fas fa-cloud-rain"></i> Precipitation</div>
+                                <div class="detail-value">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extended Forecast -->
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>7-Day Forecast & Coal Operations Impact</h2>
+                        <div class="actions">
+                            <button><i class="fas fa-sync-alt"></i></button>
+                            <button><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="weather-forecast">
+                            <div class="weather-tile">
+                                <div class="weather-date">Today</div>
+                                <div class="weather-icon"><i class="fas fa-sun"></i></div>
+                                <div class="weather-temp">36°C</div>
+                                <div class="weather-desc">Clear</div>
+                                <div class="weather-impact neutral">Neutral Impact</div>
+                                <div class="impact-details">Normal operations</div>
+                            </div>
+                            <div class="weather-tile">
+                                <div class="weather-date">Mar 12</div>
+                                <div class="weather-icon"><i class="fas fa-cloud-sun"></i></div>
+                                <div class="weather-temp">34°C</div>
+                                <div class="weather-desc">Partly Cloudy</div>
+                                <div class="weather-impact neutral">Neutral Impact</div>
+                                <div class="impact-details">Normal operations</div>
+                            </div>
+                            <div class="weather-tile">
+                                <div class="weather-date">Mar 13</div>
+                                <div class="weather-icon"><i class="fas fa-cloud"></i></div>
+                                <div class="weather-temp">33°C</div>
+                                <div class="weather-desc">Cloudy</div>
+                                <div class="weather-impact positive">Positive Impact</div>
+                                <div class="impact-details">Lower cooling needs</div>
+                            </div>
+                            <div class="weather-tile">
+                                <div class="weather-date">Mar 14</div>
+                                <div class="weather-icon"><i class="fas fa-cloud-showers-heavy"></i></div>
+                                <div class="weather-temp">30°C</div>
+                                <div class="weather-desc">Light Rain</div>
+                                <div class="weather-impact positive">Positive Impact</div>
+                                <div class="impact-details">Reduced power demand</div>
+                            </div>
+                            <div class="weather-tile">
+                                <div class="weather-date">Mar 15</div>
+                                <div class="weather-icon"><i class="fas fa-cloud-rain"></i></div>
+                                <div class="weather-temp">29°C</div>
+                                <div class="weather-desc">Heavy Rain</div>
+                                <div class="weather-impact negative">Negative Impact</div>
+                                <div class="impact-details">Coal handling issues</div>
+                            </div>
+                            <div class="weather-tile">
+                                <div class="weather-date">Mar 16</div>
+                                <div class="weather-icon"><i class="fas fa-cloud-rain"></i></div>
+                                <div class="weather-temp">28°C</div>
+                                <div class="weather-desc">Rain</div>
+                                <div class="weather-impact negative">Negative Impact</div>
+                                <div class="impact-details">Increased moisture</div>
+                            </div>
+                            <div class="weather-tile">
+                                <div class="weather-date">Mar 17</div>
+                                <div class="weather-icon"><i class="fas fa-cloud-sun"></i></div>
+                                <div class="weather-temp">31°C</div>
+                                <div class="weather-desc">Partly Cloudy</div>
+                                <div class="weather-impact neutral">Neutral Impact</div>
+                                <div class="impact-details">Normal operations</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operational Recommendations -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Weather-Based Operational Recommendations</h2>
+                    <div class="actions">
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="alert-item warning">
+                        <div class="alert-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-header">
+                                <h3>Prepare for Rainfall Events (Mar 14-16)</h3>
+                            </div>
+                            <p>Heavy rainfall predicted on March 15 may impact coal handling operations. Consider the following preventive measures:</p>
+                            <ul class="recommendations-list">
+                                <li>Cover exposed coal piles to minimize moisture absorption</li>
+                                <li>Schedule critical coal movement operations before March 14</li>
+                                <li>Ensure proper drainage at coal storage areas</li>
+                                <li>Plan for possible transport delays due to weather conditions</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="alert-item info">
+                        <div class="alert-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-header">
+                                <h3>Power Demand Forecast (Next 7 Days)</h3>
+                            </div>
+                            <p>Expected cooler temperatures during rainfall may temporarily reduce power demand by 5-8%. This could provide an opportunity to:</p>
+                            <ul class="recommendations-list">
+                                <li>Adjust coal consumption planning accordingly</li>
+                                <li>Schedule maintenance activities if possible</li>
+                                <li>Optimize inventory levels</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plant-Specific Weather Impact -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Plant-Specific Weather Impact Analysis</h2>
+                    <div class="actions">
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="plant-weather-table">
+                        <thead>
+                            <tr>
+                                <th>Plant</th>
+                                <th>Current Weather</th>
+                                <th>5-Day Forecast</th>
+                                <th>Coal Handling Impact</th>
+                                <th>Transport Impact</th>
+                                <th>Recommended Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>BLTPS</td>
+                                <td>36°C, Clear</td>
+                                <td><span class="status-badge yellow">Rainfall Expected</span></td>
+                                <td><span class="status-badge yellow">Moderate Risk</span></td>
+                                <td><span class="status-badge yellow">Moderate Risk</span></td>
+                                <td><a href="#" class="view-link">View Plan</a></td>
+                            </tr>
+                            <tr>
+                                <td>KLTPS</td>
+                                <td>35°C, Clear</td>
+                                <td><span class="status-badge green">Stable</span></td>
+                                <td><span class="status-badge green">Low Risk</span></td>
+                                <td><span class="status-badge green">Low Risk</span></td>
+                                <td><a href="#" class="view-link">View Plan</a></td>
+                            </tr>
+                            <tr>
+                                <td>SLPP</td>
+                                <td>34°C, Partly Cloudy</td>
+                                <td><span class="status-badge yellow">Rainfall Expected</span></td>
+                                <td><span class="status-badge yellow">Moderate Risk</span></td>
+                                <td><span class="status-badge yellow">Moderate Risk</span></td>
+                                <td><a href="#" class="view-link">View Plan</a></td>
+                            </tr>
+                            <tr>
+                                <td>UKAI TPS</td>
+                                <td>33°C, Cloudy</td>
+                                <td><span class="status-badge red">Heavy Rainfall</span></td>
+                                <td><span class="status-badge red">High Risk</span></td>
+                                <td><span class="status-badge red">High Risk</span></td>
+                                <td><a href="#" class="view-link">View Plan</a></td>
+                            </tr>
+                            <tr>
+                                <td>WTPS</td>
+                                <td>32°C, Cloudy</td>
+                                <td><span class="status-badge yellow">Light Rain</span></td>
+                                <td><span class="status-badge yellow">Moderate Risk</span></td>
+                                <td><span class="status-badge green">Low Risk</span></td>
+                                <td><a href="#" class="view-link">View Plan</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Weather Trends and Coal Demand Correlation -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Weather Trends & Coal Demand Correlation</h2>
+                    <div class="actions">
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-line"></i>
+                        <p>Weather temperature and coal consumption correlation chart would be displayed here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monsoon Preparedness -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Monsoon Preparedness Status</h2>
+                    <div class="actions">
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="preparedness-container">
+                        <div class="preparedness-item">
+                            <div class="preparedness-header">
+                                <h3>Coal Storage Area Drainage</h3>
+                                <div class="preparedness-status">
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 85%;"></div>
+                                    </div>
+                                    <span>85% Complete</span>
+                                </div>
+                            </div>
+                            <p>Drainage systems in coal storage areas have been upgraded to handle heavy rainfall events.</p>
+                        </div>
+                        <div class="preparedness-item">
+                            <div class="preparedness-header">
+                                <h3>Covered Storage Expansion</h3>
+                                <div class="preparedness-status">
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 65%;"></div>
+                                    </div>
+                                    <span>65% Complete</span>
+                                </div>
+                            </div>
+                            <p>Project to increase covered coal storage capacity is in progress to protect from monsoon conditions.</p>
+                        </div>
+                        <div class="preparedness-item">
+                            <div class="preparedness-header">
+                                <h3>Weather-Resistant Transport Planning</h3>
+                                <div class="preparedness-status">
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 90%;"></div>
+                                    </div>
+                                    <span>90% Complete</span>
+                                </div>
+                            </div>
+                            <p>Alternative transport routes and suppliers identified for monsoon period when primary routes may be affected.</p>
+                        </div>
+                        <div class="preparedness-item">
+                            <div class="preparedness-header">
+                                <h3>Pre-Monsoon Stock Building</h3>
+                                <div class="preparedness-status">
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 75%;"></div>
+                                    </div>
+                                    <span>75% Complete</span>
+                                </div>
+                            </div>
+                            <p>Strategy to increase coal stock levels before monsoon season onset is being implemented.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Gujarat State Electricity Corporation Limited (GSECL). All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add dropdown functionality
+            const profileBtn = document.querySelector('.profile-btn');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            profileBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileBtn.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            // Mobile menu toggle functionality
+            const mobileMenuToggle = document.createElement('button');
+            mobileMenuToggle.className = 'mobile-menu-toggle';
+            mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('sidebar-hidden');
+                document.querySelector('.content').before(mobileMenuToggle);
+            }
+            
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-hidden');
+                sidebar.classList.toggle('sidebar-visible');
+            });
+            
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    if (!document.querySelector('.mobile-menu-toggle')) {
+                        document.querySelector('.content').before(mobileMenuToggle);
+                    }
+                    sidebar.classList.add('sidebar-hidden');
+                    sidebar.classList.remove('sidebar-visible');
+                } else {
+                    sidebar.classList.remove('sidebar-hidden');
+                    sidebar.classList.remove('sidebar-visible');
+                    if (document.querySelector('.mobile-menu-toggle')) {
+                        document.querySelector('.mobile-menu-toggle').remove();
+                    }
+                }
+            });
+            
+            // Add click event listeners to nav items
+            document.querySelectorAll('.nav-list li a, .sidebar-menu li a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // For demonstration, prevent default only if the href is #
+                    if (this.getAttribute('href') === '#' || this.getAttribute('href').startsWith('#')) {
+                        e.preventDefault();
+                    }
+                    
+                    // Remove active class from all items
+                    if (this.closest('.nav-list')) {
+                        document.querySelectorAll('.nav-list li').forEach(item => {
+                            item.classList.remove('active');
+                        });
+                        this.closest('li').classList.add('active');
+                    }
+                    
+                    if (this.closest('.sidebar-menu')) {
+                        document.querySelectorAll('.sidebar-menu li').forEach(item => {
+                            item.classList.remove('active');
+                        });
+                        this.closest('li').classList.add('active');
+                    }
+                    
+                    // If on mobile, auto-close the sidebar
+                    if (window.innerWidth <= 768 && this.closest('.sidebar-menu')) {
+                        document.querySelector('.sidebar').classList.remove('sidebar-visible');
+                        document.querySelector('.sidebar').classList.add('sidebar-hidden');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

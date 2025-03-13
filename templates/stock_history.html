@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLTPS Stock History - Coal Inventory Management</title>
+    <link rel="stylesheet" href="static/varstyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
+    <style>
+        /* Header CSS */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-icon .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .profile-dropdown {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+
+        .profile-btn img {
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            list-style: none;
+            padding: 10px;
+            width: 160px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu li {
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-menu li:hover {
+            background: #f1f1f1;
+        }
+
+        .dropdown-menu a {
+            color: #333;
+            text-decoration: none;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with logo and user info -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Gujarat_State_Electricity_Corporation_Limited_Logo.jpg/450px-Gujarat_State_Electricity_Corporation_Limited_Logo.jpg" alt="GSECL Logo">
+                <h1>GSECL Coal Inventory Management</h1> 
+            </div>
+            <div class="user-info">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count">3</span>
+                </div>
+                <div class="notification-icon">
+                    <i class="fas fa-envelope"></i>
+                    <span class="notification-count">5</span>
+                </div>
+                
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <button class="profile-btn">
+                        <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User">
+                        <span id="username">Admin User</span>
+                        <i class="fas fa-caret-down"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> Profile</a></li>
+                        <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Navigation -->
+    <nav>
+        <div class="container">
+            <ul class="nav-list">
+                <li><a href="{{ ('dashboard') }}">Dashboard</a></li>
+                <li class="active"><a href="{{ ('inventory') }}">Inventory Management</a></li>
+                <li><a href="#analytics">Predictive Analytics</a></li>
+                <li><a href="{{ ('procurment') }}">Procurement</a></li>
+                <li><a href="{{ ('report') }}">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Main Content Area -->
+    <div class="container main-content">
+        <!-- Sidebar with menu options -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="{{ ('inventory') }}"><i class="fas fa-warehouse"></i> Stock Levels</a></li>
+                <li><a href="#ai-predictions"><i class="fas fa-chart-line"></i> AI Predictions</a></li>
+                <li><a href="{{ ('transport_management') }}"><i class="fas fa-truck-moving"></i> Transport Management</a></li>
+                <li><a href="{{ ('deliveries') }}"><i class="fas fa-truck"></i> Deliveries</a></li>
+                <li><a href="{{ ('contracts') }}"><i class="fas fa-file-contract"></i> Contracts</a></li>
+                <li><a href="{{ ('hazard_management') }}"><i class="fas fa-exclamation-triangle"></i> Hazard Management</a></li>
+                <li class="active"><a href="{{ ('stock_history') }}"><i class="fas fa-history"></i> Stock History</a></li>
+            </ul>
+        </aside>
+        
+        <!-- Main dashboard content -->
+        <main class="content">
+            <!-- Page Header with breadcrumbs -->
+            <div class="page-header">
+                <div class="breadcrumbs">
+                    <a href="#dashboard">Dashboard</a> / 
+                    <a href="#inventory">Inventory</a> / 
+                    <span>Stock History</span>
+                </div>
+                <div class="page-actions">
+                    <button class="btn-primary" onclick="printReport()"><i class="fas fa-print"></i> Print Report</button>
+                    <button class="btn-secondary" onclick="downloadExcel()"><i class="fas fa-download"></i> Export Data</button>
+                </div>
+            </div>
+            
+            <!-- Stock History Overview Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Stock History Overview</h2>
+                    <div class="actions">
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="history-table" id="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Opening Stock (MT)</th>
+                                <th>Received (MT)</th>
+                                <th>Consumed (MT)</th>
+                                <th>Closing Stock (MT)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>March 7, 2025</td>
+                                <td>48281.11</td>
+                                <td>4555.88</td>
+                                <td>3323.72</td>
+                                <td>49513.27</td>
+                            </tr>
+                            <tr>
+                                <td>March 6, 2025</td>
+                                <td>48281.11</td>
+                                <td>4474.11</td>
+                                <td>3323.72</td>
+                                <td>49431.50</td>
+                            </tr>
+                            <tr>
+                                <td>March 5, 2025</td>
+                                <td>48281.11</td>
+                                <td>4293.50</td>
+                                <td>3323.72</td>
+                                <td>49249.89</td>
+                            </tr>
+                            <tr>
+                                <td>March 4, 2025</td>
+                                <td>48281.11</td>
+                                <td>4375.32</td>
+                                <td>3323.72</td>
+                                <td>49332.71</td>
+                            </tr>
+                            <tr>
+                                <td>March 3, 2025</td>
+                                <td>48281.11</td>
+                                <td>4419.48</td>
+                                <td>3323.72</td>
+                                <td>49376.87</td>
+                            </tr>
+                            <tr>
+                                <td>March 2, 2025</td>
+                                <td>48281.11</td>
+                                <td>4314.91</td>
+                                <td>3323.72</td>
+                                <td>49272.30</td>
+                            </tr>
+                            <tr>
+                                <td>March 1, 2025</td>
+                                <td>48281.11</td>
+                                <td>5674.74</td>
+                                <td>3323.72</td>
+                                <td>49632.13</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Gujarat State Electricity Corporation Limited (GSECL). All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Mobile menu script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.createElement('button');
+            mobileMenuToggle.className = 'mobile-menu-toggle';
+            mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('sidebar-hidden');
+                document.querySelector('.content').before(mobileMenuToggle);
+            }
+            
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-hidden');
+                sidebar.classList.toggle('sidebar-visible');
+            });
+            
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    if (!document.querySelector('.mobile-menu-toggle')) {
+                        document.querySelector('.content').before(mobileMenuToggle);
+                    }
+                    sidebar.classList.add('sidebar-hidden');
+                    sidebar.classList.remove('sidebar-visible');
+                } else {
+                    sidebar.classList.remove('sidebar-hidden');
+                    sidebar.classList.remove('sidebar-visible');
+                    if (document.querySelector('.mobile-menu-toggle')) {
+                        document.querySelector('.mobile-menu-toggle').remove();
+                    }
+                }
+            });
+
+            // Add dropdown functionality
+            const profileBtn = document.querySelector('.profile-btn');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            profileBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileBtn.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+        });
+        
+       // Add click event listeners to nav items
+       document.querySelectorAll('.nav-list li a, .sidebar-menu li a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            // For demonstration, prevent default only if the href is #
+            if (this.getAttribute('href') === '#' || this.getAttribute('href').startsWith('#')) {
+                e.preventDefault();
+            }
+            
+            // Remove active class from all items
+            if (this.closest('.nav-list')) {
+                document.querySelectorAll('.nav-list li').forEach(item => {
+                    item.classList.remove('active');
+                });
+                this.closest('li').classList.add('active');
+            }
+            
+            if (this.closest('.sidebar-menu')) {
+                document.querySelectorAll('.sidebar-menu li').forEach(item => {
+                    item.classList.remove('active');
+                });
+                this.closest('li').classList.add('active');
+            }
+            
+            // If on mobile, auto-close the sidebar
+            if (window.innerWidth <= 768 && this.closest('.sidebar-menu')) {
+                document.querySelector('.sidebar').classList.remove('sidebar-visible');
+                document.querySelector('.sidebar').classList.add('sidebar-hidden');
+            }
+            
+            // Smoothly scroll to top on navigation
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+    </script>
+
+    <script>
+        // Function to print the report
+        function printReport() {
+            printJS({
+                printable: 'main-content',
+                type: 'html',
+                targetStyles: ['*'],
+                header: 'BLTPS Stock History - Coal Inventory Management',
+                headerStyle: 'font-size: 20px; font-weight: bold; margin-bottom: 10px;'
+            });
+        }
+
+        // Function to download the report as an Excel file
+        function downloadExcel() {
+            const workbook = XLSX.utils.book_new();
+
+            // Hazards Table
+            const hazardsTable = document.getElementById('hazards-table');
+            const hazardsData = XLSX.utils.table_to_sheet(hazardsTable);
+            XLSX.utils.book_append_sheet(workbook, hazardsData, 'Hazards');
+
+            // History Table
+            const historyTable = document.getElementById('history-table');
+            const historyData = XLSX.utils.table_to_sheet(historyTable);
+            XLSX.utils.book_append_sheet(workbook, historyData, 'Stock History');
+
+            // Generate Excel file
+            XLSX.writeFile(workbook, 'BLTPS_Stock_History.xlsx');
+        }
+    </script>
+</body>
+</html>

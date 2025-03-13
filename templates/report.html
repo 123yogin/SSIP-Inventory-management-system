@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Coal Inventory Management</title>
+    <link rel="stylesheet" href="static/varstyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        /* Header CSS */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-icon .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .profile-dropdown {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+
+        .profile-btn img {
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            list-style: none;
+            padding: 10px;
+            width: 160px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu li {
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-menu li:hover {
+            background: #f1f1f1;
+        }
+
+        .dropdown-menu a {
+            color: #333;
+            text-decoration: none;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with logo and user info -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Gujarat_State_Electricity_Corporation_Limited_Logo.jpg/450px-Gujarat_State_Electricity_Corporation_Limited_Logo.jpg" alt="GSECL Logo">
+                <h1>GSECL Coal Inventory Management</h1> 
+            </div>
+            <div class="user-info">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count">3</span>
+                </div>
+                <div class="notification-icon">
+                    <i class="fas fa-envelope"></i>
+                    <span class="notification-count">5</span>
+                </div>
+                
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <button class="profile-btn">
+                        <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User">
+                        <span id="username">Admin User</span>
+                        <i class="fas fa-caret-down"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> Profile</a></li>
+                        <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Navigation -->
+    <nav>
+        <div class="container">
+            <ul class="nav-list">
+                <li><a href="{{ ('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ ('inventory') }}">Inventory Management</a></li>
+                <li><a href="#analytics">Predictive Analytics</a></li>
+                <li><a href="{{ ('procurment') }}">Procurement</a></li>
+                <li class="active"><a href="{{ ('report') }}">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Main Content Area -->
+    <div class="container main-content">
+        <!-- Sidebar with menu options -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="active"><a href="{{ ('report') }}"><i class="fas fa-history"></i> Reports</a></li>
+            </ul>
+        </aside>
+        
+        <!-- Main dashboard content -->
+        <main class="content">
+            <!-- Page Header with breadcrumbs -->
+            <div class="page-header">
+                <div class="breadcrumbs">
+                    <a href="#dashboard">Dashboard</a> / 
+                    <span>Reports</span>
+                </div>
+                <div class="page-actions">
+                    <button class="btn-secondary" onclick="generateReport()"><i class="fas fa-sync-alt"></i> Generate Report</button>
+                    <button class="btn-primary" onclick="downloadReport()"><i class="fas fa-download"></i> Export Reports</button>
+                </div>
+            </div>
+            
+            <!-- Reports Overview Cards -->
+            <div class="reports-overview">
+                <div class="row">
+                    <div class="report-card">
+                        <div class="report-icon">
+                            <i class="fas fa-warehouse"></i>
+                        </div>
+                        <div class="report-data">
+                            <h3>Stock Reports</h3>
+                            <p>Current and historical stock levels</p>
+                        </div>
+                        <div class="report-actions">
+                            <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon"><i class="fas fa-download"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card">
+                        <div class="report-icon">
+                            <i class="fas fa-truck-moving"></i>
+                        </div>
+                        <div class="report-data">
+                            <h3>Transport Reports</h3>
+                            <p>Vehicle movements and deliveries</p>
+                        </div>
+                        <div class="report-actions">
+                            <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon"><i class="fas fa-download"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card">
+                        <div class="report-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="report-data">
+                            <h3>Consumption Reports</h3>
+                            <p>Daily and monthly resource usage</p>
+                        </div>
+                        <div class="report-actions">
+                            <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon"><i class="fas fa-download"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card">
+                        <div class="report-icon">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        <div class="report-data">
+                            <h3>Quality Reports</h3>
+                            <p>Coal quality and specification analysis</p>
+                        </div>
+                        <div class="report-actions">
+                            <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon"><i class="fas fa-download"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Report Generation Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Generate Custom Report</h2>
+                    <div class="actions">
+                        <button class="btn-primary"><i class="fas fa-save"></i> Save Template</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="report-generator">
+                        <div class="form-group">
+                            <label for="report-type">Report Type</label>
+                            <select id="report-type" class="form-control">
+                                <option value="stock">Stock Level Report</option>
+                                <option value="transport">Transportation Report</option>
+                                <option value="consumption">Consumption Analysis</option>
+                                <option value="quality">Quality Metrics Report</option>
+                                <option value="financial">Financial Report</option>
+                                <option value="comprehensive">Comprehensive Report</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="report-start-date">Start Date</label>
+                                <input type="date" id="report-start-date" class="form-control" value="2025-03-01">
+                            </div>
+                            <div class="form-group">
+                                <label for="report-end-date">End Date</label>
+                                <input type="date" id="report-end-date" class="form-control" value="2025-03-07">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Include Sections</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" checked> Stock Summary
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" checked> Daily Transactions
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" checked> Transport Details
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" checked> Coal Quality
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox"> Financial Analysis
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" checked> Visualizations
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox"> AI Recommendations
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox"> Projections
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="report-format">Export Format</label>
+                            <select id="report-format" class="form-control">
+                                <option value="pdf">PDF Document</option>
+                                <option value="excel">Excel Spreadsheet</option>
+                                <option value="html">Web Page (HTML)</option>
+                                <option value="csv">CSV Data</option>
+                                <option value="print">Print Format</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button class="btn-primary" onclick="generateReport()"><i class="fas fa-cog"></i> Generate Report</button>
+                            <button class="btn-secondary"><i class="fas fa-save"></i> Save Settings</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Reports -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Recent Reports</h2>
+                    <div class="actions">
+                        <button class="btn-secondary"><i class="fas fa-filter"></i> Filter</button>
+                        <button><i class="fas fa-sync-alt"></i></button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="reports-table">
+                        <thead>
+                            <tr>
+                                <th>Report Name</th>
+                                <th>Type</th>
+                                <th>Generated On</th>
+                                <th>Generated By</th>
+                                <th>Format</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Monthly Coal Stock Report - March 2025</td>
+                                <td><span class="badge badge-primary">Stock</span></td>
+                                <td>Mar 7, 2025</td>
+                                <td>Admin User</td>
+                                <td>PDF</td>
+                                <td class="action-buttons">
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-download"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-share-alt"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Transport Efficiency Analysis</td>
+                                <td><span class="badge badge-info">Transport</span></td>
+                                <td>Mar 5, 2025</td>
+                                <td>System</td>
+                                <td>Excel</td>
+                                <td class="action-buttons">
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-download"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-share-alt"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Daily Coal Quality Assessment</td>
+                                <td><span class="badge badge-warning">Quality</span></td>
+                                <td>Mar 5, 2025</td>
+                                <td>Lab Manager</td>
+                                <td>PDF</td>
+                                <td class="action-buttons">
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-download"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-share-alt"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Weekly Consumption Analysis</td>
+                                <td><span class="badge badge-danger">Consumption</span></td>
+                                <td>Mar 3, 2025</td>
+                                <td>Operations Manager</td>
+                                <td>Excel</td>
+                                <td class="action-buttons">
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-download"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-share-alt"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Monthly Financial Summary</td>
+                                <td><span class="badge badge-success">Financial</span></td>
+                                <td>Mar 1, 2025</td>
+                                <td>Finance Director</td>
+                                <td>PDF</td>
+                                <td class="action-buttons">
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-download"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-share-alt"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Scheduled Reports -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Scheduled Reports</h2>
+                    <div class="actions">
+                        <button class="btn-primary"><i class="fas fa-plus"></i> Add Schedule</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Report Name</th>
+                                <th>Frequency</th>
+                                <th>Next Generation</th>
+                                <th>Recipients</th>
+                                <th>Format</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Daily Stock Summary</td>
+                                <td>Daily (8:00 AM)</td>
+                                <td>Mar 8, 2025</td>
+                                <td>5 recipients</td>
+                                <td>PDF, Excel</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td class="action-buttons">
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-pause"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Weekly Consumption Report</td>
+                                <td>Weekly (Monday)</td>
+                                <td>Mar 10, 2025</td>
+                                <td>3 recipients</td>
+                                <td>PDF</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td class="action-buttons">
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-pause"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Monthly Financial Report</td>
+                                <td>Monthly (1st)</td>
+                                <td>Apr 1, 2025</td>
+                                <td>7 recipients</td>
+                                <td>PDF, Excel</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td class="action-buttons">
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-pause"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Quarterly Performance Analysis</td>
+                                <td>Quarterly</td>
+                                <td>Jun 1, 2025</td>
+                                <td>12 recipients</td>
+                                <td>PDF, PPT</td>
+                                <td><span class="badge badge-warning">Pending Review</span></td>
+                                <td class="action-buttons">
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-play"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Report Visualization Preview -->
+            <div class="row">
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h2>Stock Level Trend</h2>
+                        <div class="actions">
+                            <button class="btn-secondary"><i class="fas fa-cog"></i></button>
+                            <button><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="stockTrendChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h2>Consumption Analysis</h2>
+                        <div class="actions">
+                            <button class="btn-secondary"><i class="fas fa-cog"></i></button>
+                            <button><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="consumptionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Gujarat State Electricity Corporation Limited (GSECL). All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Report Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add dropdown functionality
+            const profileBtn = document.querySelector('.profile-btn');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            profileBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileBtn.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            // Initialize charts
+            initializeCharts();
+            
+           // Add click event listeners to nav items
+           document.querySelectorAll('.nav-list li a, .sidebar-menu li a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // For demonstration, prevent default only if the href is #
+                if (this.getAttribute('href') === '#' || this.getAttribute('href').startsWith('#')) {
+                    e.preventDefault();
+                }
+                
+                // Remove active class from all items
+                if (this.closest('.nav-list')) {
+                    document.querySelectorAll('.nav-list li').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    this.closest('li').classList.add('active');
+                }
+                
+                if (this.closest('.sidebar-menu')) {
+                    document.querySelectorAll('.sidebar-menu li').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    this.closest('li').classList.add('active');
+                }
+                
+                // If on mobile, auto-close the sidebar
+                if (window.innerWidth <= 768 && this.closest('.sidebar-menu')) {
+                    document.querySelector('.sidebar').classList.remove('sidebar-visible');
+                    document.querySelector('.sidebar').classList.add('sidebar-hidden');
+                }
+            });
+        });
+
+        // Mobile menu functionality
+        const mobileMenuToggle = document.createElement('button');
+        mobileMenuToggle.className = 'mobile-menu-toggle';
+        mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+        
+        const sidebar = document.querySelector('.sidebar');
+        
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('sidebar-hidden');
+            document.querySelector('.content').before(mobileMenuToggle);
+        }
+        
+        mobileMenuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('sidebar-hidden');
+            sidebar.classList.toggle('sidebar-visible');
+        });
+        
+        window.addEventListener('resize', function() {
+            if (window.innerWidth <= 768) {
+                if (!document.querySelector('.mobile-menu-toggle')) {
+                    document.querySelector('.content').before(mobileMenuToggle);
+                }
+                sidebar.classList.add('sidebar-hidden');
+                sidebar.classList.remove('sidebar-visible');
+            } else {
+                sidebar.classList.remove('sidebar-hidden');
+                sidebar.classList.remove('sidebar-visible');
+                if (document.querySelector('.mobile-menu-toggle')) {
+                    document.querySelector('.mobile-menu-toggle').remove();
+                }
+            }
+        });
+
+        // Function to initialize charts
+        function initializeCharts() {
+            // Stock Trend Chart
+            const stockTrendChart = document.getElementById('stockTrendChart');
+            if (stockTrendChart) {
+                new Chart(stockTrendChart, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mar 1', 'Mar 2', 'Mar 3', 'Mar 4', 'Mar 5', 'Mar 6', 'Mar 7'],
+                        datasets: [{
+                            label: 'Coal Stock (MT)',
+                            data: [41497, 43857, 44279, 46312, 47192, 48281, 49513],
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Daily Coal Stock Levels (March 2025)',
+                                font: {
+                                    size: 16
+                                }
+                            },
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: 'Stock Level (MT)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Date'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Consumption Chart
+            const consumptionChart = document.getElementById('consumptionChart');
+            if (consumptionChart) {
+                new Chart(consumptionChart, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mar 1', 'Mar 2', 'Mar 3', 'Mar 4', 'Mar 5', 'Mar 6', 'Mar 7'],
+                        datasets: [{
+                            label: 'Daily Consumption (MT)',
+                            data: [3314.58, 3332.91, 3456.27, 3399.14, 3511.23, 3753.82, 3323.72],
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                            borderColor: 'rgba(231, 76, 60, 1)',
+                            borderWidth: 1
+                        }, {
+                            label: 'Daily Receipt (MT)',
+                            data: [5674.74, 4314.91, 4419.48, 4375.32, 4293.50, 4474.11, 4555.88],
+                            backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Daily Coal Consumption vs. Receipt (March 2025)',
+                                font: {
+                                    size: 16
+                                }
+                            },
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Coal Quantity (MT)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Date'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Function to generate a report
+        function generateReport() {
+            const reportType = document.getElementById('report-type').value;
+            const startDate = document.getElementById('report-start-date').value;
+            const endDate = document.getElementById('report-end-date').value;
+            const format = document.getElementById('report-format').value;
+            
+            // Show a notification that the report is being generated
+            alert(`Generating ${reportType} report from ${startDate} to ${endDate} in ${format} format. This would typically be processed by the server.`);
+            
+            // In a real implementation, this would send a request to the server
+            // For demo purposes, we'll just show a simulated processing delay
+            document.body.style.cursor = 'wait';
+            
+            setTimeout(() => {
+                document.body.style.cursor = 'default';
+                alert('Report generated successfully! In a real system, this would be available for download or viewing.');
+            }, 1500);
+        }
+        
+        // Function to download a report
+        function downloadReport() {
+            // Get selected reports (in a real implementation)
+            // For demo purposes, we'll just show an alert
+            alert('This would download the selected report(s) in the chosen format. In a real implementation, this would trigger file downloads.');
+        }
+    </script>
+</body>
+</html>

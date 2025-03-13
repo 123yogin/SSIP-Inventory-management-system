@@ -1,13 +1,626 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - GSECL Coal Inventory Management</title>
+    <link rel="stylesheet" href="static\dashboard.css">
+    <link rel="stylesheet" href="static\varstyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
 
-{% block title %}Dashboard{% endblock %}
+        /* CSS for Header Section */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
 
-{% block content %}
-<div class="dashboard">
-    <h1><i class="fas fa-tachometer-alt"></i> Welcome, {{ current_user.username }}!</h1>
-    <div class="user-info">
-        <p><i class="fas fa-envelope"></i> Email: {{ current_user.email }}</p>
-        <p><i class="fas fa-clock"></i> Account created: {{ current_user.created_at.strftime('%B %d, %Y') }}</p>
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-icon .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .profile-dropdown {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+
+        .profile-btn img {
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            list-style: none;
+            padding: 10px;
+            width: 160px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu li {
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-menu li:hover {
+            background: #f1f1f1;
+        }
+
+        /* Fix the missing .fas class for Font Awesome icons */
+        .fas {
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+        }
+
+        /* Fix the status-highlight section styling */
+        .status-highlight {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        .highlight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .title-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .update-badge {
+            font-size: 0.8rem;
+            color: #666;
+            padding: 4px 8px;
+            background-color: #f5f7fa;
+            border-radius: 4px;
+        }
+
+        /* Fix the summary tiles layout */
+        .summary-tiles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .summary-tile {
+            background-color: #f9fafb;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Fix input styling in summary tiles */
+        .summary-tile input[type="number"] {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            width: 120px;
+            color: #333;
+        }
+
+        .summary-tile input[type="number"]:focus {
+            outline: none;
+            background-color: rgba(0, 102, 204, 0.1);
+            border-radius: 4px;
+        }
+
+        /* Fix the status indicator styling */
+        .status-indicator-large {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background-color: #f5f7fa;
+            border-radius: 30px;
+        }
+
+        .indicator-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .indicator-light.green {
+            background-color: #28a745;
+            box-shadow: 0 0 8px rgba(40, 167, 69, 0.4);
+        }
+
+        /* Fix mobile responsiveness */
+        @media (max-width: 768px) {
+            .highlight-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .status-indicator-large {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .summary-tiles {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-tile input[type="number"] {
+                width: 100px;
+            }
+        }
+
+        /* Fix the conveyor belt icon since Font Awesome doesn't have one */
+        .fa-conveyor-belt::before {
+            content: "\f472"; /* Using truck-loading icon as alternative */
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with logo and user info -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Gujarat_State_Electricity_Corporation_Limited_Logo.jpg/450px-Gujarat_State_Electricity_Corporation_Limited_Logo.jpg" alt="GSECL Logo">
+                <h1>GSECL Coal Inventory Management</h1> 
+            </div>
+            <div class="user-info">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count">3</span>
+                </div>
+                <div class="notification-icon">
+                    <i class="fas fa-envelope"></i>
+                    <span class="notification-count">5</span>
+                </div>
+                
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <button class="profile-btn">
+                        <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User">
+                        <span id="username">Admin User</span>
+                        <i class="fas fa-caret-down"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> Profile</a></li>
+                        <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Main Navigation -->
+    <nav>
+        <div class="container">
+            <ul class="nav-list">
+                <li  class="active"><a href="{{ ('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ ('inventory') }}">Inventory Management</a></li>
+               
+                <li><a href="#analytics">Predictive Analytics</a></li>
+                <li><a href="{{ ('procurment') }}">Procurement</a></li>
+                <li><a href="{{ ('report') }}">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+    <!-- Main Content Area -->
+    <div class="container main-content">
+        <!-- Sidebar with menu options -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="active"><a href=""><i class="fas fa-tachometer-alt"></i> Summary</a></li>
+                
+                <li><a href="{{ ('alert') }}"><i class="fas fa-exclamation-circle"></i> Alerts</a></li>
+                
+                <li><a href="{{ ('weather') }}"><i class="fas fa-cloud-sun"></i> Weather Impact</a></li>
+       
+                <li><a href="{{ ('calendar') }}"><i class="fas fa-calendar-alt"></i> Calendar</a></li>
+            </ul>
+        </aside>
+        
+        <!-- Main dashboard content -->
+        <main class="content">
+            <!-- Page Header with breadcrumbs -->
+            <div class="page-header">
+                <div class="breadcrumbs">
+                    <span>Dashboard</span>
+                </div>
+                <div class="page-actions">
+                    <button class="btn-primary"><i class="fas fa-sync-alt"></i> Refresh Data</button>
+                    <button class="btn-secondary"><i class="fas fa-download"></i> Export</button>
+                </div>
+            </div>
+            
+            <!-- Dashboard Status Cards -->
+            <div class="status-highlight">
+                <div class="highlight-header">
+                    <div class="title-section">
+                        <h2>BLTPS Resource Status</h2>
+                        <span class="update-badge">Updated: March 7, 2025</span>
+                    </div>
+                    <div class="status-indicator-large">
+                        <div class="indicator-light green"></div>
+                        <span>Healthy Stock Levels</span>
+                    </div>
+                </div>
+                
+                <div class="highlight-content">
+                    <div class="summary-tiles">
+                        <!-- Coal/Lignite Section -->
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-warehouse"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value"><input type="number" id="coal-stock" value="49513.27" step="any"> MT</div>
+                                <div class="tile-label">Coal Stock</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-oil-can"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value"><input type="number" id="oil-stock" value="2850.50" step="any"> KL</div>
+                                <div class="tile-label">Oil Stock</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-calendar-day"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value" id="coal-sufficiency">14.9 Days</div>
+                                <div class="tile-label">Coal Sufficiency</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Transport Status -->
+                    <div class="summary-tiles transport-status">
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-truck-moving"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value"><input type="number" id="trucks-movement" value="225"> Trucks</div>
+                                <div class="tile-label">Today's Truck Movement</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-train"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value"><input type="number" id="train-movement" value="8"> Rakes</div>
+                                <div class="tile-label">Today's Train Movement</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-conveyor-belt"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value"><input type="number" id="conveyor-receipt" value="4555.88" step="any"> MT</div>
+                                <div class="tile-label">Conveyor Receipt</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-fire"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value"><input type="number" id="daily-consumption" value="3323.72" step="any"> MT</div>
+                                <div class="tile-label">Today's Consumption</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <!-- Plant Status Overview -->
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Plant-wise Coal Stock Status</h2>
+                        <div class="actions">
+                            <button><i class="fas fa-sync-alt"></i></button>
+                            <button><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="plant-status-table">
+                            <thead>
+                                <tr>
+                                    <th>Plant</th>
+                                    <th>Current Stock (MT)</th>
+                                    <th>Daily Consumption (MT)</th>
+                                    <th>Stock Sufficiency</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>BLTPS</td>
+                                    <td>49,513.27</td>
+                                    <td>3,323.72</td>
+                                    <td>14.9 Days</td>
+                                    <td><span class="status-badge green">Healthy</span></td>
+                                    <td><a href="bltps-stock.html" class="view-link">View Details</a></td>
+                                </tr>
+                                <tr>
+                                    <td>KLTPS</td>
+                                    <td>72,641.85</td>
+                                    <td>5,147.93</td>
+                                    <td>14.1 Days</td>
+                                    <td><span class="status-badge green">Healthy</span></td>
+                                    <td><a href="#" class="view-link">View Details</a></td>
+                                </tr>
+                                <tr>
+                                    <td>SLPP</td>
+                                    <td>58,219.33</td>
+                                    <td>4,350.65</td>
+                                    <td>13.4 Days</td>
+                                    <td><span class="status-badge green">Healthy</span></td>
+                                    <td><a href="#" class="view-link">View Details</a></td>
+                                </tr>
+                                <tr>
+                                    <td>UKAI TPS</td>
+                                    <td>42,785.12</td>
+                                    <td>3,850.77</td>
+                                    <td>11.1 Days</td>
+                                    <td><span class="status-badge yellow">Moderate</span></td>
+                                    <td><a href="#" class="view-link">View Details</a></td>
+                                </tr>
+                                <tr>
+                                    <td>WTPS</td>
+                                    <td>24,359.64</td>
+                                    <td>3,102.65</td>
+                                    <td>7.9 Days</td>
+                                    <td><span class="status-badge red">Critical</span></td>
+                                    <td><a href="#" class="view-link">View Details</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Alerts & Notifications -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Recent Alerts & Notifications</h2>
+                        <div class="actions">
+                            <button><i class="fas fa-sync-alt"></i></button>
+                            <button><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="alerts-container">
+                        <div class="alert-item critical">
+                            <div class="alert-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="alert-content">
+                                <div class="alert-header">
+                                    <h3>Critical Stock Alert - WTPS</h3>
+                                    <span class="alert-time">2 hours ago</span>
+                                </div>
+                                <p>Stock level at WTPS has fallen below 8 days threshold. Current stock: 7.9 days.</p>
+                                <div class="alert-actions">
+                                    <button class="btn-small">View Details</button>
+                                    <button class="btn-small btn-outline">Dismiss</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert-item warning">
+                            <div class="alert-icon">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="alert-content">
+                                <div class="alert-header">
+                                    <h3>Quality Variance - SLPP</h3>
+                                    <span class="alert-time">5 hours ago</span>
+                                </div>
+                                <p>Coal quality parameters showing 12% higher ash content than specified in contract.</p>
+                                <div class="alert-actions">
+                                    <button class="btn-small">View Details</button>
+                                    <button class="btn-small btn-outline">Dismiss</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert-item info">
+                            <div class="alert-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="alert-content">
+                                <div class="alert-header">
+                                    <h3>Contract Nearing Expiry - KLTPS</h3>
+                                    <span class="alert-time">1 day ago</span>
+                                </div>
+                                <p>Contract #GS-2024-LT-451 with Supplier XYZ Coal Ltd. expires in 15 days.</p>
+                                <div class="alert-actions">
+                                    <button class="btn-small">View Details</button>
+                                    <button class="btn-small btn-outline">Dismiss</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stock Trend Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Coal Stock Trends - All Plants</h2>
+                    <div class="actions">
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-line"></i>
+                        <p>Stock trend visualization across all plants would be displayed here</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Weather & Generation Impact -->
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Weather Forecast Impact</h2>
+                        <div class="actions">
+                            <button><i class="fas fa-sync-alt"></i></button>
+                            <button><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="weather-container">
+                        <div class="weather-tiles">
+                            <div class="weather-tile">
+                                <div class="weather-date">Today</div>
+                                <div class="weather-icon"><i class="fas fa-sun"></i></div>
+                                <div class="weather-temp">36°C</div>
+                                <div class="weather-impact neutral">Neutral Impact</div>
+                            </div>
+                            <div class="weather-tile">
+                                <div class="weather-date">Tomorrow</div>
+                                <div class="weather-icon"><i class="fas fa-cloud-sun"></i></div>
+                                <div class="weather-temp">34°C</div>
+                                <div class="weather-impact neutral">Neutral Impact</div>
+                            </div>
+                            <div class="weather-tile">
+                                <div class="weather-date">Mar 11</div>
+                                <div class="weather-icon"><i class="fas fa-cloud"></i></div>
+                                <div class="weather-temp">33°C</div>
+                                <div class="weather-impact positive">Positive Impact</div>
+                            </div>
+                            <div class="weather-tile">
+                                <div class="weather-date">Mar 12</div>
+                                <div class="weather-icon"><i class="fas fa-cloud-showers-heavy"></i></div>
+                                <div class="weather-temp">30°C</div>
+                                <div class="weather-impact positive">Positive Impact</div>
+                            </div>
+                            <div class="weather-tile">
+                                <div class="weather-date">Mar 13</div>
+                                <div class="weather-icon"><i class="fas fa-cloud-rain"></i></div>
+                                <div class="weather-temp">29°C</div>
+                                <div class="weather-impact negative">Negative Impact</div>
+                            </div>
+                        </div>
+                        <div class="weather-notes">
+                            <p><strong>Note:</strong> Rainfall predicted on Mar 13 may impact coal handling operations and potentially increase moisture content.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Generation vs. Consumption</h2>
+                        <div class="actions">
+                            <button><i class="fas fa-sync-alt"></i></button>
+                            <button><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-bar"></i>
+                            <p>Generation vs. consumption correlation would be displayed here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
-</div>
-{% endblock %}
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Gujarat State Electricity Corporation Limited (GSECL). All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script src="static/js/header.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add dropdown functionality
+            const profileBtn = document.querySelector('.profile-btn');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            profileBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileBtn.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            // ... rest of your existing mobile menu and other functionality ...
+        });
+    </script>
+</body>
+</html>

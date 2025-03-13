@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLTPS Coal Procurement Management</title>
+    <link rel="stylesheet" href="static/varstyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
+    <style>
+        /* Header CSS */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-icon .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .profile-dropdown {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+
+        .profile-btn img {
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            list-style: none;
+            padding: 10px;
+            width: 160px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu li {
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-menu li:hover {
+            background: #f1f1f1;
+        }
+
+        .dropdown-menu a {
+            color: #333;
+            text-decoration: none;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with logo and user info -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Gujarat_State_Electricity_Corporation_Limited_Logo.jpg/450px-Gujarat_State_Electricity_Corporation_Limited_Logo.jpg" alt="GSECL Logo">
+                <h1>GSECL Coal Inventory Management</h1> 
+            </div>
+            <div class="user-info">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count">5</span>
+                </div>
+                <div class="notification-icon">
+                    <i class="fas fa-envelope"></i>
+                    <span class="notification-count">3</span>
+                </div>
+                
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <button class="profile-btn">
+                        <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User">
+                        <span id="username">Admin User</span>
+                        <i class="fas fa-caret-down"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> Profile</a></li>
+                        <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Navigation -->
+    <nav>
+        <div class="container">
+            <ul class="nav-list">
+                <li><a href="{{ ('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ ('inventory') }}">Inventory Management</a></li>
+                <li><a href="#analytics">Predictive Analytics</a></li>
+                <li class="active"><a href="{{ ('procurment') }}">Procurement</a></li>
+                <li><a href="{{ ('report') }}">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+    <!-- Main Content Area -->
+    <div class="container main-content">
+        <!-- Sidebar with menu options -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#procurement-dashboard"><i class="fas fa-tachometer-alt"></i> Procurement Dashboard</a></li>
+                <li class="active"><a href="#purchase-orders"><i class="fas fa-file-invoice"></i> Purchase Orders</a></li>
+                <li><a href="#coal-tenders"><i class="fas fa-gavel"></i> Coal Tenders</a></li>
+                <li><a href="#contracts-management"><i class="fas fa-file-contract"></i> Contracts Management</a></li>
+                <li><a href="#vendor-catalog"><i class="fas fa-address-book"></i> Vendor Catalog</a></li>
+                <li><a href="#price-analytics"><i class="fas fa-chart-line"></i> Price Analytics</a></li>
+                <li><a href="#budget-allocation"><i class="fas fa-money-bill-wave"></i> Budget Allocation</a></li>
+                <li><a href="#quality-control"><i class="fas fa-clipboard-check"></i> Quality Control</a></li>
+                <li><a href="#delivery-schedule"><i class="fas fa-calendar-alt"></i> Delivery Schedule</a></li>
+                <li><a href="#procurement-history"><i class="fas fa-history"></i> Procurement History</a></li>
+                <li><a href="#approval-workflows"><i class="fas fa-tasks"></i> Approval Workflows</a></li>
+                <li><a href="#compliance"><i class="fas fa-balance-scale"></i> Compliance & Regulations</a></li>
+            </ul>
+        </aside>
+        
+        <!-- Main dashboard content -->
+        <main class="content">
+            <!-- Page Header with breadcrumbs -->
+            <div class="page-header">
+                <div class="breadcrumbs">
+                    <a href="#dashboard">Dashboard</a> / 
+                    <a href="#procurement">Procurement</a> / 
+                    <span>Purchase Orders</span>
+                </div>
+                <div class="page-actions">
+                    <button class="btn-primary"><i class="fas fa-plus"></i> New Purchase Order</button>
+                    <button class="btn-secondary" onclick="printReport()"><i class="fas fa-print"></i> Print Report</button>
+                    <button class="btn-secondary" onclick="downloadExcel()"><i class="fas fa-download"></i> Export Data</button>
+                </div>
+            </div>
+            
+            <!-- Latest Status Highlight Card -->
+            <div class="status-highlight">
+                <div class="highlight-header">
+                    <div class="title-section">
+                        <h2>Procurement Status</h2>
+                        <span class="update-badge">Updated: March 10, 2025</span>
+                    </div>
+                    <div class="status-indicator-large">
+                        <div class="indicator-light green"></div>
+                        <span>All systems operational</span>
+                    </div>
+                </div>
+                
+                <div class="highlight-content">
+                    <div class="summary-tiles">
+                        <!-- Procurement Summary Section -->
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-file-invoice"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value">17</div>
+                                <div class="tile-label">Active POs</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-hourglass-half"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value">5</div>
+                                <div class="tile-label">Pending Approvals</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-calendar-check"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value">8</div>
+                                <div class="tile-label">Due This Week</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Budget Status -->
+                    <div class="summary-tiles budget-status">
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-money-bill-wave"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value">₹ 246.8M</div>
+                                <div class="tile-label">Monthly Budget</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-chart-pie"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value">₹ 183.5M</div>
+                                <div class="tile-label">Utilized (74.3%)</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value">₹ 63.3M</div>
+                                <div class="tile-label">Available</div>
+                            </div>
+                        </div>
+                        <div class="summary-tile">
+                            <div class="tile-icon"><i class="fas fa-bolt"></i></div>
+                            <div class="tile-data">
+                                <div class="tile-value">₹ 4,215</div>
+                                <div class="tile-label">Avg Price/MT</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Active Purchase Orders -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Active Purchase Orders</h2>
+                    <div class="actions">
+                        <div class="search-box">
+                            <input type="text" placeholder="Search POs...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <button class="btn-filter"><i class="fas fa-filter"></i> Filter</button>
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="purchase-orders-table">
+                        <thead>
+                            <tr>
+                                <th>PO Number</th>
+                                <th>Vendor</th>
+                                <th>Issue Date</th>
+                                <th>Delivery Date</th>
+                                <th>Quantity (MT)</th>
+                                <th>Value (₹)</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="#po-details">PO-2025-0342</a></td>
+                                <td>Coal India Limited</td>
+                                <td>Feb 15, 2025</td>
+                                <td>Mar 15, 2025</td>
+                                <td>15,000</td>
+                                <td>₹ 63,225,000</td>
+                                <td><span class="badge badge-success">On Schedule</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-file-pdf"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="#po-details">PO-2025-0338</a></td>
+                                <td>Adani Enterprises</td>
+                                <td>Feb 10, 2025</td>
+                                <td>Mar 12, 2025</td>
+                                <td>8,500</td>
+                                <td>₹ 35,827,500</td>
+                                <td><span class="badge badge-warning">Delayed</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-file-pdf"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="#po-details">PO-2025-0335</a></td>
+                                <td>Tata Power</td>
+                                <td>Feb 8, 2025</td>
+                                <td>Mar 18, 2025</td>
+                                <td>12,000</td>
+                                <td>₹ 50,580,000</td>
+                                <td><span class="badge badge-success">On Schedule</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-file-pdf"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="#po-details">PO-2025-0329</a></td>
+                                <td>Gujarat Mineral Development Corp</td>
+                                <td>Feb 2, 2025</td>
+                                <td>Mar 20, 2025</td>
+                                <td>7,500</td>
+                                <td>₹ 31,612,500</td>
+                                <td><span class="badge badge-success">On Schedule</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-file-pdf"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="#po-details">PO-2025-0327</a></td>
+                                <td>JSW Energy</td>
+                                <td>Feb 1, 2025</td>
+                                <td>Mar 5, 2025</td>
+                                <td>5,000</td>
+                                <td>₹ 21,075,000</td>
+                                <td><span class="badge badge-danger">Delayed (Critical)</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-file-pdf"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <button class="pagination-btn"><i class="fas fa-chevron-left"></i></button>
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn">4</button>
+                    <button class="pagination-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            
+            <!-- Pending Approvals -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Pending Approvals</h2>
+                    <div class="actions">
+                        <button class="btn-primary"><i class="fas fa-check-double"></i> Batch Approve</button>
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="pending-approvals-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="select-all"></th>
+                                <th>Reference No.</th>
+                                <th>Type</th>
+                                <th>Vendor</th>
+                                <th>Amount (₹)</th>
+                                <th>Submitted By</th>
+                                <th>Date</th>
+                                <th>Waiting For</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="checkbox" class="row-select"></td>
+                                <td><a href="#approval-details">REQ-2025-0089</a></td>
+                                <td>Purchase Requisition</td>
+                                <td>Coal India Limited</td>
+                                <td>₹ 42,150,000</td>
+                                <td>Rajesh Sharma</td>
+                                <td>Mar 8, 2025</td>
+                                <td>Finance Approval</td>
+                                <td>
+                                    <button class="btn-icon success"><i class="fas fa-check"></i></button>
+                                    <button class="btn-icon danger"><i class="fas fa-times"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="row-select"></td>
+                                <td><a href="#approval-details">PO-2025-0352</a></td>
+                                <td>Purchase Order</td>
+                                <td>Gujarat Mineral Development Corp</td>
+                                <td>₹ 25,290,000</td>
+                                <td>Amita Patel</td>
+                                <td>Mar 9, 2025</td>
+                                <td>Director Approval</td>
+                                <td>
+                                    <button class="btn-icon success"><i class="fas fa-check"></i></button>
+                                    <button class="btn-icon danger"><i class="fas fa-times"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="row-select"></td>
+                                <td><a href="#approval-details">CTR-2025-0023</a></td>
+                                <td>Contract Amendment</td>
+                                <td>Adani Enterprises</td>
+                                <td>₹ 12,645,000</td>
+                                <td>Vijay Mehta</td>
+                                <td>Mar 7, 2025</td>
+                                <td>Legal Review</td>
+                                <td>
+                                    <button class="btn-icon success"><i class="fas fa-check"></i></button>
+                                    <button class="btn-icon danger"><i class="fas fa-times"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="row-select"></td>
+                                <td><a href="#approval-details">INV-2025-0156</a></td>
+                                <td>Invoice Approval</td>
+                                <td>Coal India Limited</td>
+                                <td>₹ 18,540,000</td>
+                                <td>Neha Singh</td>
+                                <td>Mar 10, 2025</td>
+                                <td>Payment Processing</td>
+                                <td>
+                                    <button class="btn-icon success"><i class="fas fa-check"></i></button>
+                                    <button class="btn-icon danger"><i class="fas fa-times"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="row-select"></td>
+                                <td><a href="#approval-details">REQ-2025-0092</a></td>
+                                <td>Purchase Requisition</td>
+                                <td>JSW Energy</td>
+                                <td>₹ 10,537,500</td>
+                                <td>Prakash Joshi</td>
+                                <td>Mar 9, 2025</td>
+                                <td>Budget Verification</td>
+                                <td>
+                                    <button class="btn-icon success"><i class="fas fa-check"></i></button>
+                                    <button class="btn-icon danger"><i class="fas fa-times"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Coal Price Analysis -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Coal Price Analysis</h2>
+                    <div class="actions">
+                        <div class="date-range">
+                            <select>
+                                <option>Last 30 days</option>
+                                <option>Last Quarter</option>
+                                <option>Last Year</option>
+                                <option>Custom Range</option>
+                            </select>
+                        </div>
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-line"></i>
+                        <p>Coal price trend visualization would be displayed here</p>
+                    </div>
+                </div>
+                <div class="price-metrics">
+                    <div class="metric-card">
+                        <h4>Current Price</h4>
+                        <div class="metric-value">₹ 4,215/MT</div>
+                        <div class="metric-change success">
+                            <i class="fas fa-arrow-down"></i> 2.3% from last month
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Projected Price</h4>
+                        <div class="metric-value">₹ 4,280/MT</div>
+                        <div class="metric-change danger">
+                            <i class="fas fa-arrow-up"></i> 1.5% in 30 days
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>6-Month Average</h4>
+                        <div class="metric-value">₹ 4,305/MT</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Price Volatility</h4>
+                        <div class="metric-value">3.2%</div>
+                        <div class="metric-change success">
+                            <i class="fas fa-arrow-down"></i> Stable
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vendor Performance -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Vendor Performance</h2>
+                    <div class="actions">
+                        <button class="btn-primary"><i class="fas fa-plus"></i> Add Vendor</button>
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="vendor-performance-table">
+                        <thead>
+                            <tr>
+                                <th>Vendor</th>
+                                <th>Active POs</th>
+                                <th>On-Time Delivery</th>
+                                <th>Quality Rating</th>
+                                <th>Avg Price/MT</th>
+                                <th>Avg Lead Time</th>
+                                <th>Total Spent (YTD)</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="#vendor-details">Coal India Limited</a></td>
+                                <td>5</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar success" style="width: 92%"></div>
+                                    </div>
+                                    <span>92%</span>
+                                </td>
+                                <td>
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                </td>
+                                <td>₹ 4,215</td>
+                                <td>28 days</td>
+                                <td>₹ 427.5M</td>
+                                <td><span class="badge badge-success">Preferred</span></td>
+                            </tr>
+                            <tr>
+                                <td><a href="#vendor-details">Adani Enterprises</a></td>
+                                <td>3</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar warning" style="width: 85%"></div>
+                                    </div>
+                                    <span>85%</span>
+                                </td>
+                                <td>
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                                    </div>
+                                </td>
+                                <td>₹ 4,270</td>
+                                <td>30 days</td>
+                                <td>₹ 312.3M</td>
+                                <td><span class="badge badge-success">Preferred</span></td>
+                            </tr>
+                            <tr>
+                                <td><a href="#vendor-details">Gujarat Mineral Development Corp</a></td>
+                                <td>4</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar success" style="width: 94%"></div>
+                                    </div>
+                                    <span>94%</span>
+                                </td>
+                                <td>
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                    </div>
+                                </td>
+                                <td>₹ 4,235</td>
+                                <td>25 days</td>
+                                <td>₹ 256.8M</td>
+                                <td><span class="badge badge-success">Preferred</span></td>
+                            </tr>
+                            <tr>
+                                <td><a href="#vendor-details">Tata Power</a></td>
+                                <td>2</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar success" style="width: 90%"></div>
+                                    </div>
+                                    <span>90%</span>
+                                </td>
+                                <td>
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                                    </div>
+                                </td>
+                                <td>₹ 4,195</td>
+                                <td>32 days</td>
+                                <td>₹ 201.4M</td>
+                                <td><span class="badge badge-success">Preferred</span></td>
+                            </tr>
+                            <tr>
+                                <td><a href="#vendor-details">JSW Energy</a></td>
+                                <td>3</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar danger" style="width: 78%"></div>
+                                    </div>
+                                    <span>78%</span>
+                                </td>
+                                <td>
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+                                    </div>
+                                </td>
+                                <td>₹ 4,175</td>
+                                <td>35 days</td>
+                                <td>₹ 185.2M</td>
+                                <td><span class="badge badge-warning">Under Review</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Active Tenders -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Active Coal Tenders</h2>
+                    <div class="actions">
+                        <button class="btn-primary"><i class="fas fa-plus"></i> New Tender</button>
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="active-tenders-table">
+                        <thead>
+                            <tr>
+                                <th>Tender ID</th>
+                                <th>Title</th>
+                                <th>Issue Date</th>
+                                <th>Closing Date</th>
+                                <th>Est. Value</th>
+                                <th>Quantity (MT)</th>
+                                <th>Bids Received</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="#tender-details">T-2025-035</a></td>
+                                <td>G9-Grade Coal Supply Q2 2025</td>
+                                <td>Mar 1, 2025</td>
+                                <td>Mar 15, 2025</td>
+                                <td>₹ 84.3M</td>
+                                <td>20,000</td>
+                                <td>5</td>
+                                <td><span class="badge badge-warning">Bidding Open</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-file-pdf"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="#tender-details">T-2025-032</a></td>
+                                <td>G7-Grade Coal Supply Q2 2025</td>
+                                <td>Feb 25, 2025</td>
+                                <td>Mar 12, 2025</td>
+                                <td>₹ 93.7M</td>
+                                <td>22,000</td>
+                                <td>8</td>
+                                <td><span class="badge badge-warning">Bidding Open</span></td>
+                                <td>
+                                    <button class="btn-icon">
+                                        <td>
+                                            <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-file-pdf"></i></button>
+                                        </td>
+                                        </tr>
+                                        <tr>
+                                            <td><a href="#tender-details">T-2025-029</a></td>
+                                            <td>G10-Grade Imported Coal Supply</td>
+                                            <td>Feb 20, 2025</td>
+                                            <td>Mar 18, 2025</td>
+                                            <td>₹ 105.6M</td>
+                                            <td>25,000</td>
+                                            <td>3</td>
+                                            <td><span class="badge badge-warning">Bidding Open</span></td>
+                                            <td>
+                                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-icon"><i class="fas fa-file-pdf"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><a href="#tender-details">T-2025-027</a></td>
+                                            <td>G8-Grade Coal Supply Q2 2025</td>
+                                            <td>Feb 18, 2025</td>
+                                            <td>Mar 20, 2025</td>
+                                            <td>₹ 88.9M</td>
+                                            <td>21,000</td>
+                                            <td>6</td>
+                                            <td><span class="badge badge-warning">Bidding Open</span></td>
+                                            <td>
+                                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-icon"><i class="fas fa-file-pdf"></i></button>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                        </table>
+                                        </div>
+                                        </div>
+                                        
+                                        <!-- Recent Activity Feed -->
+                                        <div class="card">
+                                        <div class="card-header">
+                                            <h2>Recent Activity</h2>
+                                            <div class="actions">
+                                                <button><i class="fas fa-sync-alt"></i></button>
+                                                <button><i class="fas fa-expand"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="activity-feed">
+                                            <div class="activity-item">
+                                                <div class="activity-icon success">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                                <div class="activity-content">
+                                                    <div class="activity-title">Purchase Order Approved</div>
+                                                    <div class="activity-description">PO-2025-0348 for Coal India Limited was approved by Finance Director</div>
+                                                    <div class="activity-meta">
+                                                        <span class="activity-time">Today, 10:45 AM</span>
+                                                        <span class="activity-user">by Suresh Kumar</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="activity-item">
+                                                <div class="activity-icon primary">
+                                                    <i class="fas fa-file-invoice"></i>
+                                                </div>
+                                                <div class="activity-content">
+                                                    <div class="activity-title">New Purchase Order Created</div>
+                                                    <div class="activity-description">PO-2025-0352 for Gujarat Mineral Development Corp was created</div>
+                                                    <div class="activity-meta">
+                                                        <span class="activity-time">Today, 09:30 AM</span>
+                                                        <span class="activity-user">by Amita Patel</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="activity-item">
+                                                <div class="activity-icon warning">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                </div>
+                                                <div class="activity-content">
+                                                    <div class="activity-title">Delivery Delay Notification</div>
+                                                    <div class="activity-description">PO-2025-0338 from Adani Enterprises will be delayed by 3 days</div>
+                                                    <div class="activity-meta">
+                                                        <span class="activity-time">Yesterday, 04:15 PM</span>
+                                                        <span class="activity-user">System Notification</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="activity-item">
+                                                <div class="activity-icon info">
+                                                    <i class="fas fa-gavel"></i>
+                                                </div>
+                                                <div class="activity-content">
+                                                    <div class="activity-title">New Bid Received</div>
+                                                    <div class="activity-description">New bid received for Tender T-2025-035 from JSW Energy</div>
+                                                    <div class="activity-meta">
+                                                        <span class="activity-time">Yesterday, 02:30 PM</span>
+                                                        <span class="activity-user">System Notification</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="activity-item">
+                                                <div class="activity-icon danger">
+                                                    <i class="fas fa-times-circle"></i>
+                                                </div>
+                                                <div class="activity-content">
+                                                    <div class="activity-title">Purchase Requisition Rejected</div>
+                                                    <div class="activity-description">REQ-2025-0087 was rejected due to budget constraints</div>
+                                                    <div class="activity-meta">
+                                                        <span class="activity-time">Yesterday, 11:20 AM</span>
+                                                        <span class="activity-user">by Vikram Desai</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer">
+                                            <a href="#all-activity" class="view-all">View All Activity <i class="fas fa-arrow-right"></i></a>
+                                        </div>
+                                        </div>
+                                        
+                                        </main>
+                                        </div>
+                                        
+                                        <!-- Footer -->
+                                        <footer>
+                                        <div class="container">
+                                            <div class="footer-content">
+                                                <div class="copyright">
+                                                    &copy; 2025 BLTPS Coal Procurement Management. All rights reserved.
+                                                </div>
+                                                <div class="footer-links">
+                                                    <a href="#terms">Terms of Service</a>
+                                                    <a href="#privacy">Privacy Policy</a>
+                                                    <a href="#help">Help Center</a>
+                                                    <a href="#contact">Contact Support</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </footer>
+                                        
+                                        <!-- JavaScript for functionality -->
+                                        <script>
+                                        // Function to print reports
+                                        function printReport() {
+                                            // Implement print functionality
+                                            printJS({
+                                                printable: 'purchase-orders-table',
+                                                type: 'html',
+                                                header: 'Active Purchase Orders Report - ' + new Date().toLocaleDateString(),
+                                                documentTitle: 'Purchase Orders Report',
+                                                css: 'style.css'
+                                            });
+                                        }
+                                        
+                                        // Function to export data to Excel
+                                        function downloadExcel() {
+                                            // Get the table data
+                                            const table = document.getElementById('purchase-orders-table');
+                                            const ws = XLSX.utils.table_to_sheet(table);
+                                            
+                                            // Create a workbook
+                                            const wb = XLSX.utils.book_new();
+                                            XLSX.utils.book_append_sheet(wb, ws, "Purchase Orders");
+                                            
+                                            // Generate the Excel file
+                                            XLSX.writeFile(wb, "Purchase_Orders_Report_" + new Date().toLocaleDateString() + ".xlsx");
+                                        }
+                                        
+                                        // Select all checkboxes functionality
+                                        document.getElementById('select-all').addEventListener('change', function() {
+                                            const isChecked = this.checked;
+                                            document.querySelectorAll('.row-select').forEach(checkbox => {
+                                                checkbox.checked = isChecked;
+                                            });
+                                        });
+                                        
+                                        // Add event listeners for other interactive elements
+                                        document.querySelectorAll('.btn-filter').forEach(button => {
+                                            button.addEventListener('click', function() {
+                                                // Implement filter functionality
+                                                alert('Filter functionality would be implemented here');
+                                            });
+                                        });
+                                        
+                                        // Responsive navigation for mobile
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            // Mobile navigation toggle code would go here
+                                            console.log('DOM fully loaded and parsed');
+                                        });
+                                        
+                                        // Notification handling
+                                        document.querySelectorAll('.notification-icon').forEach(icon => {
+                                            icon.addEventListener('click', function() {
+                                                // Show notification panel
+                                                alert('Notification panel would appear here');
+                                            });
+                                        });
+                                        
+                                        // Table row click events
+                                        document.querySelectorAll('.data-table tbody tr').forEach(row => {
+                                            row.addEventListener('click', function(e) {
+                                                // Prevent triggering when clicking buttons
+                                                if (e.target.closest('button') || e.target.closest('a')) return;
+                                                
+                                                // Navigate to details page
+                                                const link = this.querySelector('a');
+                                                if (link) window.location.href = link.getAttribute('href');
+                                            });
+                                        });
+
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            // Add dropdown functionality
+                                            const profileBtn = document.querySelector('.profile-btn');
+                                            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+                                            profileBtn.addEventListener('click', function(e) {
+                                                e.stopPropagation();
+                                                dropdownMenu.classList.toggle('show');
+                                            });
+
+                                            // Close dropdown when clicking outside
+                                            document.addEventListener('click', function(e) {
+                                                if (!profileBtn.contains(e.target)) {
+                                                    dropdownMenu.classList.remove('show');
+                                                }
+                                            });
+
+                                            // Your existing procurement functionality...
+                                        });
+                                        </script>
+                                        </body>
+                                        </html>

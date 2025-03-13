@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar - GSECL Coal Inventory Management</title>
+    <link rel="stylesheet" href="static\dashboard.css">
+    <link rel="stylesheet" href="static\varstyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS for Header Section */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-icon .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .profile-dropdown {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+
+        .profile-btn img {
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            list-style: none;
+            padding: 10px;
+            width: 160px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu li {
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-menu li:hover {
+            background: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with logo and user info -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Gujarat_State_Electricity_Corporation_Limited_Logo.jpg/450px-Gujarat_State_Electricity_Corporation_Limited_Logo.jpg" alt="GSECL Logo">
+                <h1>GSECL Coal Inventory Management</h1> 
+            </div>
+            <div class="user-info">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count">3</span>
+                </div>
+                <div class="notification-icon">
+                    <i class="fas fa-envelope"></i>
+                    <span class="notification-count">5</span>
+                </div>
+                
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <button class="profile-btn">
+                        <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User">
+                        <span id="username">Admin User</span>
+                        <i class="fas fa-caret-down"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> Profile</a></li>
+                        <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Navigation -->
+    <nav>
+        <div class="container">
+            <ul class="nav-list">
+                <li class="active"><a href="{{ ('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ ('inventory') }}">Inventory Management</a></li>
+                <li><a href="#analytics">Predictive Analytics</a></li>
+                <li><a href="{{ ('procurment') }}">Procurement</a></li>
+                <li><a href="{{ ('report') }}">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="container main-content">
+        <!-- Sidebar with menu options -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="{{ ('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Summary</a></li>
+                <li><a href="{{ ('alert') }}"><i class="fas fa-exclamation-circle"></i> Alerts</a></li>
+                <li><a href="{{ ('weather') }}"><i class="fas fa-cloud-sun"></i> Weather Impact</a></li>
+                <li class="active"><a href="{{ ('calendar') }}"><i class="fas fa-calendar-alt"></i> Calendar</a></li>
+            </ul>
+        </aside>
+        
+  
+            
+            <!-- Upcoming Events Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Upcoming Events</h2>
+                    <div class="actions">
+                        <button><i class="fas fa-sync-alt"></i></button>
+                        <button><i class="fas fa-filter"></i></button>
+                    </div>
+                </div>
+                <div class="upcoming-events-list">
+                    <div class="event-item">
+                        <div class="event-date">
+                            <div class="date">11</div>
+                            <div class="month">MAR</div>
+                        </div>
+                        <div class="event-details">
+                            <h3 class="event-title">Weekly Status Meeting</h3>
+                            <div class="event-meta">
+                                <span><i class="fas fa-clock"></i> 14:30 - 15:30</span>
+                                <span><i class="fas fa-map-marker-alt"></i> Conference Room A</span>
+                                <span><i class="fas fa-users"></i> Coal Management Team</span>
+                            </div>
+                            <p class="event-description">Weekly review of coal inventory status across all plants. Preparation for potential rain impact at UKAI.</p>
+                        </div>
+                        <div class="event-actions">
+                            <button class="btn-small"><i class="fas fa-edit"></i></button>
+                            <button class="btn-small"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="event-item">
+                        <div class="event-date">
+                            <div class="date">13</div>
+                            <div class="month">MAR</div>
+                        </div>
+                        <div class="event-details">
+                            <h3 class="event-title">Heavy Rainfall Warning</h3>
+                            <div class="event-meta">
+                                <span><i class="fas fa-clock"></i> All Day</span>
+                                <span><i class="fas fa-map-marker-alt"></i> UKAI TPS</span>
+                                <span><i class="fas fa-exclamation-triangle"></i> Weather Alert</span>
+                            </div>
+                            <p class="event-description">Meteorological department warning for heavy rainfall. Prepare coal storage and handling areas. Implement rain preparation protocol.</p>
+                        </div>
+                        <div class="event-actions">
+                            <button class="btn-small"><i class="fas fa-edit"></i></button>
+                            <button class="btn-small"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="event-item">
+                        <div class="event-date">
+                            <div class="date">17</div>
+                            <div class="month">MAR</div>
+                        </div>
+                        <div class="event-details">
+                            <h3 class="event-title">Supplier Meeting</h3>
+                            <div class="event-meta">
+                                <span><i class="fas fa-clock"></i> 11:00 - 12:30</span>
+                                <span><i class="fas fa-map-marker-alt"></i> Meeting Room 2</span>
+                                <span><i class="fas fa-building"></i> ABC Coal Ltd.</span>
+                            </div>
+                            <p class="event-description">Discuss quality concerns from recent deliveries and review delivery schedule for next quarter.</p>
+                        </div>
+                        <div class="event-actions">
+                            <button class="btn-small"><i class="fas fa-edit"></i></button>
+                            <button class="btn-small"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="event-item">
+                        <div class="event-date">
+                            <div class="date">20</div>
+                            <div class="month">MAR</div>
+                        </div>
+                        <div class="event-details">
+                            <h3 class="event-title">Monthly Inventory Audit</h3>
+                            <div class="event-meta">
+                                <span><i class="fas fa-clock"></i> 09:30 - 16:00</span>
+                                <span><i class="fas fa-map-marker-alt"></i> All Plants</span>
+                                <span><i class="fas fa-clipboard-check"></i> Audit</span>
+                            </div>
+                            <p class="event-description">Monthly comprehensive audit of coal inventory across all thermal power stations.</p>
+                        </div>
+                        <div class="event-actions">
+                            <button class="btn-small"><i class="fas fa-edit"></i></button>
+                            <button class="btn-small"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="event-item">
+                        <div class="event-date">
+                            <div class="date">24</div>
+                            <div class="month">MAR</div>
+                        </div>
+                        <div class="event-details">
+                            <h3 class="event-title">Contract Expiry - XYZ Coal Ltd.</h3>
+                            <div class="event-meta">
+                                <span><i class="fas fa-clock"></i> All Day</span>
+                                <span><i class="fas fa-map-marker-alt"></i> KLTPS</span>
+                                <span><i class="fas fa-file-contract"></i> Contract #GS-2024-LT-451</span>
+                            </div>
+                            <p class="event-description">Long-term coal supply contract expires. Renewal or new supplier selection required.</p>
+                        </div>
+                        <div class="event-actions">
+                            <button class="btn-small"><i class="fas fa-edit"></i></button>
+                            <button class="btn-small"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pagination-controls">
+                    <button class="btn-pagination disabled"><i class="fas fa-chevron-left"></i> Previous</button>
+                    <div class="pagination-info">Page 1 of 2</div>
+                    <button class="btn-pagination">Next <i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Gujarat State Electricity Corporation Limited (GSECL). All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Existing mobile menu script
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle functionality
+            const mobileMenuToggle = document.createElement('button');
+            mobileMenuToggle.className = 'mobile-menu-toggle';
+            mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('sidebar-hidden');
+                document.querySelector('.content').before(mobileMenuToggle);
+            }
+            
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-hidden');
+                sidebar.classList.toggle('sidebar-visible');
+            });
+            
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    if (!document.querySelector('.mobile-menu-toggle')) {
+                        document.querySelector('.content').before(mobileMenuToggle);
+                    }
+                    sidebar.classList.add('sidebar-hidden');
+                    sidebar.classList.remove('sidebar-visible');
+                } else {
+                    sidebar.classList.remove('sidebar-hidden');
+                    sidebar.classList.remove('sidebar-visible');
+                    if (document.querySelector('.mobile-menu-toggle')) {
+                        document.querySelector('.mobile-menu-toggle').remove();
+                    }
+                }
+            });
+
+            // Add dropdown functionality
+            const profileBtn = document.querySelector('.profile-btn');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            profileBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileBtn.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
