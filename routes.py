@@ -6,6 +6,11 @@ from forms import RegistrationForm, LoginForm
 from forms import ForgotPasswordForm
 
 
+@app.route('/')
+
+@app.route('/index')
+def index():
+    return redirect(url_for('login'))
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
@@ -18,10 +23,6 @@ def forgot_password():
         return redirect(url_for('login'))
     return render_template('forgot_password.html', form=form)
 
-@app.route('/')
-@app.route('/index')
-def index():
-    return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
