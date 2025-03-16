@@ -5,7 +5,7 @@ from models import User
 from forms import RegistrationForm, LoginForm
 from forms import ForgotPasswordForm
 
-
+@app.route('/home')
 @app.route('/')
 
 @app.route('/index')
