@@ -232,107 +232,13 @@
                                 <td><input type="number" id="trains-quantity" value="23200.00" step="any"></td>
                                 <td><span class="badge badge-warning">2 Hrs Delay</span></td>
                             </tr>
-                            <tr>
-                                <td><i class="fas fa-conveyor-belt"></i> Conveyor System</td>
-                                <td>Continuous</td>
-                                <td><input type="number" id="conveyor-system-quantity" value="4555.88" step="any"></td>
-                                <td><span class="badge badge-success">Operational</span></td>
-                            </tr>
+                            
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Transport Analytics -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>Transport Analytics & Live Tracking</h2>
-                    <div class="actions">
-                        <button class="btn-primary"><i class="fas fa-filter"></i> Filter View</button>
-                        <button><i class="fas fa-sync-alt"></i></button>
-                        <button><i class="fas fa-expand"></i></button>
-                    </div>
-                </div>
-                
-                <!-- Live Tracking Controls -->
-                <div class="tracking-controls">
-                    <div class="tracking-filters">
-                        <button class="btn-filter active" data-type="all">
-                            <i class="fas fa-globe"></i> All Vehicles
-                            <span class="count">233</span>
-                        </button>
-                        <button class="btn-filter" data-type="truck">
-                            <i class="fas fa-truck-moving"></i> Trucks
-                            <span class="count">225</span>
-                        </button>
-                        <button class="btn-filter" data-type="train">
-                            <i class="fas fa-train"></i> Trains
-                            <span class="count">8</span>
-                        </button>
-                    </div>
-                    <div class="tracking-legend">
-                        <span><i class="fas fa-circle text-success"></i> On Time</span>
-                        <span><i class="fas fa-circle text-warning"></i> Delayed</span>
-                        <span><i class="fas fa-circle text-danger"></i> Critical Delay</span>
-                    </div>
-                </div>
-
-                <!-- Live Tracking Map and Details -->
-                <div class="tracking-container">
-                    <!-- Map View -->
-                    <div class="live-map">
-                        <div id="map"></div>
-                    </div>
-
-                    <!-- Vehicle List -->
-                    <div class="vehicle-list">
-                        <div class="list-header">
-                            <h3>Active Vehicles</h3>
-                            <div class="search-box">
-                                <input type="text" placeholder="Search vehicle...">
-                                <i class="fas fa-search"></i>
-                            </div>
-                        </div>
-                        <div class="vehicle-items">
-                            <!-- Train Items -->
-                            <div class="vehicle-item train">
-                                <div class="vehicle-icon">
-                                    <i class="fas fa-train"></i>
-                                </div>
-                                <div class="vehicle-info">
-                                    <h4>Rake #RT-2025-083</h4>
-                                    <p>From: Mines Block B | To: BLTPS</p>
-                                    <div class="progress">
-                                        <div class="progress-bar warning" style="width: 65%"></div>
-                                    </div>
-                                </div>
-                                <div class="vehicle-status warning">
-                                    <span>2hr delay</span>
-                                    <small>ETA: 14:30</small>
-                                </div>
-                            </div>
-
-                            <!-- Truck Items -->
-                            <div class="vehicle-item truck">
-                                <div class="vehicle-icon">
-                                    <i class="fas fa-truck-moving"></i>
-                                </div>
-                                <div class="vehicle-info">
-                                    <h4>Truck #TK-2025-225</h4>
-                                    <p>From: Loading Point 3 | To: Unloading Bay</p>
-                                    <div class="progress">
-                                        <div class="progress-bar success" style="width: 85%"></div>
-                                    </div>
-                                </div>
-                                <div class="vehicle-status success">
-                                    <span>On Time</span>
-                                    <small>ETA: 12:15</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+            
                 <!-- Analytics Dashboard -->
                 <div class="analytics-dashboard">
                     <div class="analytics-card">

@@ -1,9 +1,10 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, login_required, current_user
-from app import app, db
+from flask_mail import Message
+from app import app, db, mail
 from models import User
-from forms import RegistrationForm, LoginForm
-from forms import ForgotPasswordForm
+from forms import RegistrationForm, LoginForm, ForgotPasswordForm
+import secrets
 
 @app.route('/home')
 @app.route('/')
@@ -17,12 +18,27 @@ def forgot_password():
     form = ForgotPasswordForm()
     if form.validate_on_submit():
         email = form.email.data
-        # Add your logic to handle the forgot password request here
-        # For example, send a password reset email to the user
-        flash('A password reset link has been sent to your email address.', 'info')
+        user = User.query.filter_by(email=email).first()
+        if user:
+            token = secrets.token_urlsafe(16)
+            reset_link = url_for('reset_password', token=token, _external=True)
+            msg = Message('Password Reset Request', sender='parmaryogin04@gmail.com', recipients=[email])
+            msg.body = f'Please click the link to reset your password: {reset_link}'
+            mail.send(msg)
+            flash('A password reset link has been sent to your email address.', 'info')
+        else:
+            flash('Email not found', 'danger')
         return redirect(url_for('login'))
     return render_template('forgot_password.html', form=form)
 
+@app.route('/resetpassword/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if request.method == 'POST':
+        new_password = request.form['password']
+        # Here you would update the user's password in the database
+        flash('Your password has been updated!', 'success')
+        return redirect(url_for('login'))
+    return render_template('reset_password.html', token=token)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
