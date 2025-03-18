@@ -237,7 +237,7 @@
             </div>
             <div class="user-info">
                 <div class="notification-icon">
-                    <i class="fas fa-bell"></i>
+                    <a  href="{{ ('alert') }}"><i class="fas fa-bell"></i></a>
                     <span class="notification-count">3</span>
                 </div>
                 <div class="notification-icon">
@@ -280,8 +280,6 @@
         <aside class="sidebar">
             <ul class="sidebar-menu">
                 <li class="active"><a href=""><i class="fas fa-tachometer-alt"></i> Summary</a></li>
-                
-                <li><a href="{{ ('alert') }}"><i class="fas fa-exclamation-circle"></i> Alerts</a></li>
                 
                 <li><a href="{{ ('weather') }}"><i class="fas fa-cloud-sun"></i> Weather Impact</a></li>
        

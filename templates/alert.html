@@ -3,866 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alerts - GSECL Coal Inventory Management</title>
-    <link rel="stylesheet" href="static\dashboard.css">
-    <link rel="stylesheet" href="static\varstyle.css">
+    <title>Notifications - GSECL Coal Inventory Management</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS for Header Section */
-        .header-content {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .notification-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .notification-header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 20px;
-            background-color: #ffffff;
-            border-bottom: 1px solid #e9ecef;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        
+        .notification-header h1 {
+            font-size: 22px;
+            font-weight: 500;
         }
-
-        .logo img {
-            height: 50px;
-        }
-
-        .logo h1 {
-            font-size: 24px;
-            color: #333;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            position: relative;
-        }
-
-        .notification-icon {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .notification-icon .notification-count {
-            position: absolute;
-            top: -5px;
-            right: -10px;
-            background: #dc3545;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 6px;
-            font-size: 12px;
-        }
-
-        .profile-dropdown {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .profile-btn {
+        
+        .close-btn {
             background: none;
             border: none;
+            color: white;
+            font-size: 22px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 16px;
-            padding: 5px 10px;
-        }
-
-        .profile-btn img {
-            height: 30px;
-            border-radius: 50%;
-        }
-
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 100%;
-            background: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            list-style: none;
-            padding: 10px;
-            width: 160px;
-            z-index: 1000;
-        }
-
-        .dropdown-menu.show {
-            display: block;
-        }
-
-        .dropdown-menu li {
-            padding: 10px 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .dropdown-menu li:hover {
-            background: #f1f1f1;
-        }
-
-        /* Alert Status Overview Cards */
-        .alert-status-overview {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-
-        .alert-stat-card {
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 5px;
             transition: transform 0.2s ease;
         }
-
-        .alert-stat-card:hover {
-            transform: translateY(-2px);
+        
+        .close-btn:hover {
+            transform: scale(1.1);
         }
-
-        .alert-stat-card.critical { border-left: 4px solid #dc3545; }
-        .alert-stat-card.warning { border-left: 4px solid #ffc107; }
-        .alert-stat-card.info { border-left: 4px solid #17a2b8; }
-
-        /* Alert Items Styling */
-        .alerts-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        
+        .notification-content {
             padding: 20px;
         }
-
-        .alert-item {
-            display: flex;
-            gap: 20px;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-            transition: box-shadow 0.2s ease;
-        }
-
-        .alert-item:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .alert-item.critical { border-left: 4px solid #dc3545; }
-        .alert-item.warning { border-left: 4px solid #ffc107; }
-        .alert-item.info { border-left: 4px solid #17a2b8; }
-
-        /* Alert Details Styling */
-        .alert-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 15px 0;
+        
+        .notification-item {
             padding: 15px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }
-
-        .alert-detail-item {
+            border-bottom: 1px solid #eee;
             display: flex;
-            flex-direction: column;
-            gap: 5px;
+            align-items: flex-start;
+            gap: 15px;
         }
-
-        /* Button Styles */
-        .btn-small {
-            padding: 8px 16px;
-            border-radius: 4px;
-            border: none;
-            background: #007bff;
-            color: white;
-            cursor: pointer;
+        
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-icon {
+            font-size: 18px;
+            min-width: 24px;
+            text-align: center;
+        }
+        
+        .notification-icon.critical {
+            color: #dc3545;
+        }
+        
+        .notification-icon.warning {
+            color: #ffc107;
+        }
+        
+        .notification-icon.info {
+            color: #17a2b8;
+        }
+        
+        .notification-text {
+            flex-grow: 1;
+        }
+        
+        .notification-text h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .notification-text p {
             font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.2s ease;
+            color: #666;
         }
-
-        .btn-small:hover {
-            background: #0056b3;
+        
+        .notification-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+            display: block;
         }
-
-        .btn-small.btn-outline {
-            background: transparent;
-            border: 1px solid #007bff;
+        
+        .notification-footer {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+        
+        .notification-footer a {
             color: #007bff;
+            text-decoration: none;
         }
-
-        .btn-small.btn-outline:hover {
-            background: #007bff;
-            color: white;
+        
+        .notification-footer a:hover {
+            text-decoration: underline;
         }
-
-        /* Filter Panel Styling */
-        .filter-panel {
-            background: #fff;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .filter-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .filter-group select,
-        .filter-group input {
-            padding: 8px 12px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        /* Table Styling */
-        .table-container {
-            overflow-x: auto;
-        }
-
-        .alert-history-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
-        .alert-history-table th,
-        .alert-history-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .alert-history-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            
-            .filter-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .alert-item {
-                flex-direction: column;
-            }
-            
-            .alert-details {
-                grid-template-columns: 1fr;
-            }
-            
-            .alert-actions {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .btn-small {
-                width: 100%;
-                justify-content: center;
+        
+        @media (max-width: 600px) {
+            .notification-container {
+                margin: 20px;
+                width: auto;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header with logo and user info -->
-    <header>
-        <div class="container header-content">
-            <div class="logo">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Gujarat_State_Electricity_Corporation_Limited_Logo.jpg/450px-Gujarat_State_Electricity_Corporation_Limited_Logo.jpg" alt="GSECL Logo">
-                <h1>GSECL Coal Inventory Management</h1> 
-            </div>
-            <div class="user-info">
-                <div class="notification-icon">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-count">3</span>
-                </div>
-                <div class="notification-icon">
-                    <i class="fas fa-envelope"></i>
-                    <span class="notification-count">5</span>
-                </div>
-                
-                <!-- Profile Dropdown -->
-                <div class="profile-dropdown">
-                    <button class="profile-btn">
-                        <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User">
-                        <span id="username">Admin User</span>
-                        <i class="fas fa-caret-down"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> Profile</a></li>
-                        <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
-                        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                    </ul>
-                </div>
-            </div>
+    <div class="notification-container">
+        <div class="notification-header">
+            <h1>Notifications</h1>
+            <button class="close-btn" id="closeButton">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-    </header>
-    
-    <!-- Main Navigation -->
-    <nav>
-        <div class="container">
-            <ul class="nav-list">
-                <li class="active" ><a href="{{ ('dashboard') }}">Dashboard</a></li>
-                <li><a href="{{ ('inventory') }}">Inventory Management</a></li>
-                <li><a href="#analytics">Predictive Analytics</a></li>
-                <li><a href="{{ ('procurment') }}">Procurement</a></li>
-                <li><a href="{{ ('report') }}">Reports</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <!-- Main Content Area -->
-    <div class="container main-content">
-        <!-- Sidebar with menu options -->
-        <aside class="sidebar">
-            <ul class="sidebar-menu">
-                <li><a href="{{ ('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Summary</a></li>
-                
-                <li class="active"><a href="{{ ('alert') }}"><i class="fas fa-exclamation-circle"></i> Alerts</a></li>
-                
-                <li><a href="{{ ('weather') }}"><i class="fas fa-cloud-sun"></i> Weather Impact</a></li>
-                
-                <li><a href="{{ ('calendar') }}"><i class="fas fa-calendar-alt"></i> Calendar</a></li>
-            </ul>
-        </aside>
         
-        <!-- Main alerts content -->
-        <main class="content">
-            <!-- Page Header with breadcrumbs -->
-            <div class="page-header">
-                <div class="breadcrumbs">
-                    <a href="{{ ('dashboard') }}">Dashboard</a> <span>&gt;</span> <span>Alerts</span>
+        <div class="notification-content">
+            <div class="notification-item">
+                <div class="notification-icon critical">
+                    <i class="fas fa-exclamation-triangle"></i>
                 </div>
-                <div class="page-actions">
-                    <button class="btn-primary"><i class="fas fa-sync-alt"></i> Refresh</button>
-                    <button class="btn-secondary"><i class="fas fa-download"></i> Export</button>
-                </div>
-            </div>
-            
-            <!-- Alert Filters -->
-            <div class="card filter-panel">
-                <div class="card-header">
-                    <h2>Alert Filters</h2>
-                    <div class="actions">
-                        <button><i class="fas fa-sliders-h"></i></button>
-                    </div>
-                </div>
-                <div class="filter-container">
-                    <div class="filter-group">
-                        <label for="alert-severity">Severity</label>
-                        <select id="alert-severity">
-                            <option value="all">All Severities</option>
-                            <option value="critical">Critical</option>
-                            <option value="warning">Warning</option>
-                            <option value="info">Information</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="alert-type">Type</label>
-                        <select id="alert-type">
-                            <option value="all">All Types</option>
-                            <option value="stock">Stock Level</option>
-                            <option value="quality">Coal Quality</option>
-                            <option value="logistics">Logistics</option>
-                            <option value="contract">Contract</option>
-                            <option value="weather">Weather</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="alert-plant">Plant</label>
-                        <select id="alert-plant">
-                            <option value="all">All Plants</option>
-                            <option value="bltps">BLTPS</option>
-                            <option value="kltps">KLTPS</option>
-                            <option value="slpp">SLPP</option>
-                            <option value="ukai">UKAI TPS</option>
-                            <option value="wtps">WTPS</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="alert-date-from">Date Range</label>
-                        <div class="date-range">
-                            <input type="date" id="alert-date-from" value="2025-03-01">
-                            <span>to</span>
-                            <input type="date" id="alert-date-to" value="2025-03-11">
-                        </div>
-                    </div>
-                    <div class="filter-actions">
-                        <button class="btn-primary"><i class="fas fa-filter"></i> Apply Filters</button>
-                        <button class="btn-secondary"><i class="fas fa-redo"></i> Reset</button>
-                    </div>
+                <div class="notification-text">
+                    <h3>Critical Stock Alert - WTPS</h3>
+                    <p>Stock level at WTPS has fallen below 8 days threshold. Current stock: 7.9 days.</p>
+                    <span class="notification-time">March 9, 2025 • 09:15 AM</span>
                 </div>
             </div>
             
-            <!-- Alert Status Overview -->
-            <div class="alert-status-overview">
-                <div class="alert-stat-card critical">
-                    <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                    <div class="stat-data">
-                        <div class="stat-value">3</div>
-                        <div class="stat-label">Critical Alerts</div>
-                    </div>
+            <div class="notification-item">
+                <div class="notification-icon critical">
+                    <i class="fas fa-exclamation-triangle"></i>
                 </div>
-                <div class="alert-stat-card warning">
-                    <div class="stat-icon"><i class="fas fa-exclamation-circle"></i></div>
-                    <div class="stat-data">
-                        <div class="stat-value">7</div>
-                        <div class="stat-label">Warning Alerts</div>
-                    </div>
-                </div>
-                <div class="alert-stat-card info">
-                    <div class="stat-icon"><i class="fas fa-info-circle"></i></div>
-                    <div class="stat-data">
-                        <div class="stat-value">12</div>
-                        <div class="stat-label">Information Alerts</div>
-                    </div>
-                </div>
-                <div class="alert-stat-card">
-                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                    <div class="stat-data">
-                        <div class="stat-value">42</div>
-                        <div class="stat-label">Resolved</div>
-                    </div>
+                <div class="notification-text">
+                    <h3>Coal Supply Interruption - BLTPS</h3>
+                    <p>Supplier MCL has reported conveyor system failure. Expected delay in next 3 shipments by 48 hours.</p>
+                    <span class="notification-time">March 9, 2025 • 11:30 AM</span>
                 </div>
             </div>
             
-            <!-- Active Alerts List -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>Active Alerts</h2>
-                    <div class="actions">
-                        <button><i class="fas fa-sync-alt"></i></button>
-                        <button><i class="fas fa-expand"></i></button>
-                    </div>
+            <div class="notification-item">
+                <div class="notification-icon warning">
+                    <i class="fas fa-exclamation-circle"></i>
                 </div>
-                <div class="alerts-container full-list">
-                    <div class="alert-item critical">
-                        <div class="alert-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="alert-content">
-                            <div class="alert-header">
-                                <h3>Critical Stock Alert - WTPS</h3>
-                                <span class="alert-time">March 9, 2025 • 09:15 AM</span>
-                            </div>
-                            <p>Stock level at WTPS has fallen below 8 days threshold. Current stock: 7.9 days.</p>
-                            <div class="alert-details">
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Plant:</span>
-                                    <span class="detail-value">WTPS</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Category:</span>
-                                    <span class="detail-value">Stock Level</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Threshold:</span>
-                                    <span class="detail-value">8 days</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Current:</span>
-                                    <span class="detail-value">7.9 days</span>
-                                </div>
-                            </div>
-                            <div class="alert-actions">
-                                <button class="btn-small"><i class="fas fa-chart-line"></i> View Trend</button>
-                                <button class="btn-small"><i class="fas fa-tasks"></i> Assign Task</button>
-                                <button class="btn-small btn-outline"><i class="fas fa-check"></i> Mark Resolved</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="alert-item critical">
-                        <div class="alert-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="alert-content">
-                            <div class="alert-header">
-                                <h3>Coal Supply Interruption - BLTPS</h3>
-                                <span class="alert-time">March 9, 2025 • 11:30 AM</span>
-                            </div>
-                            <p>Supplier MCL has reported conveyor system failure. Expected delay in next 3 shipments by 48 hours.</p>
-                            <div class="alert-details">
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Plant:</span>
-                                    <span class="detail-value">BLTPS</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Category:</span>
-                                    <span class="detail-value">Logistics</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Supplier:</span>
-                                    <span class="detail-value">MCL</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Impact:</span>
-                                    <span class="detail-value">48 hour delay</span>
-                                </div>
-                            </div>
-                            <div class="alert-actions">
-                                <button class="btn-small"><i class="fas fa-truck"></i> Check Alternatives</button>
-                                <button class="btn-small"><i class="fas fa-phone"></i> Contact Supplier</button>
-                                <button class="btn-small btn-outline"><i class="fas fa-check"></i> Mark Resolved</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="alert-item critical">
-                        <div class="alert-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="alert-content">
-                            <div class="alert-header">
-                                <h3>High Moisture Content - SLPP</h3>
-                                <span class="alert-time">March 10, 2025 • 03:45 PM</span>
-                            </div>
-                            <p>Coal samples from latest delivery at SLPP show 18.2% moisture content, exceeding specification (15% max).</p>
-                            <div class="alert-details">
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Plant:</span>
-                                    <span class="detail-value">SLPP</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Category:</span>
-                                    <span class="detail-value">Coal Quality</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Parameter:</span>
-                                    <span class="detail-value">Moisture Content</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Threshold:</span>
-                                    <span class="detail-value">15% max</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Measured:</span>
-                                    <span class="detail-value">18.2%</span>
-                                </div>
-                            </div>
-                            <div class="alert-actions">
-                                <button class="btn-small"><i class="fas fa-flask"></i> View Test Report</button>
-                                <button class="btn-small"><i class="fas fa-file-contract"></i> Contract Terms</button>
-                                <button class="btn-small btn-outline"><i class="fas fa-check"></i> Mark Resolved</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="alert-item warning">
-                        <div class="alert-icon">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </div>
-                        <div class="alert-content">
-                            <div class="alert-header">
-                                <h3>Quality Variance - SLPP</h3>
-                                <span class="alert-time">March 9, 2025 • 04:20 PM</span>
-                            </div>
-                            <p>Coal quality parameters showing 12% higher ash content than specified in contract.</p>
-                            <div class="alert-details">
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Plant:</span>
-                                    <span class="detail-value">SLPP</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Category:</span>
-                                    <span class="detail-value">Coal Quality</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Parameter:</span>
-                                    <span class="detail-value">Ash Content</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Variance:</span>
-                                    <span class="detail-value">+12%</span>
-                                </div>
-                            </div>
-                            <div class="alert-actions">
-                                <button class="btn-small"><i class="fas fa-chart-line"></i> View History</button>
-                                <button class="btn-small btn-outline"><i class="fas fa-check"></i> Mark Resolved</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="alert-item warning">
-                        <div class="alert-icon">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </div>
-                        <div class="alert-content">
-                            <div class="alert-header">
-                                <h3>Weather Alert - Heavy Rain Expected</h3>
-                                <span class="alert-time">March 10, 2025 • 09:10 AM</span>
-                            </div>
-                            <p>Meteorological department has issued heavy rainfall warning for March 13-14 in Surat region (UKAI TPS).</p>
-                            <div class="alert-details">
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Plant(s):</span>
-                                    <span class="detail-value">UKAI TPS</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Category:</span>
-                                    <span class="detail-value">Weather</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Period:</span>
-                                    <span class="detail-value">March 13-14, 2025</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Potential Impact:</span>
-                                    <span class="detail-value">Coal Handling, Transport</span>
-                                </div>
-                            </div>
-                            <div class="alert-actions">
-                                <button class="btn-small"><i class="fas fa-cloud-rain"></i> Weather Forecast</button>
-                                <button class="btn-small"><i class="fas fa-clipboard-list"></i> Rain Protocol</button>
-                                <button class="btn-small btn-outline"><i class="fas fa-check"></i> Mark Resolved</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="alert-item info">
-                        <div class="alert-icon">
-                            <i class="fas fa-info-circle"></i>
-                        </div>
-                        <div class="alert-content">
-                            <div class="alert-header">
-                                <h3>Contract Nearing Expiry - KLTPS</h3>
-                                <span class="alert-time">March 8, 2025 • 10:15 AM</span>
-                            </div>
-                            <p>Contract #GS-2024-LT-451 with Supplier XYZ Coal Ltd. expires in 15 days.</p>
-                            <div class="alert-details">
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Plant:</span>
-                                    <span class="detail-value">KLTPS</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Category:</span>
-                                    <span class="detail-value">Contract</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Contract ID:</span>
-                                    <span class="detail-value">GS-2024-LT-451</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Supplier:</span>
-                                    <span class="detail-value">XYZ Coal Ltd.</span>
-                                </div>
-                                <div class="alert-detail-item">
-                                    <span class="detail-label">Expiry Date:</span>
-                                    <span class="detail-value">March 24, 2025</span>
-                                </div>
-                            </div>
-                            <div class="alert-actions">
-                                <button class="btn-small"><i class="fas fa-file-contract"></i> View Contract</button>
-                                <button class="btn-small"><i class="fas fa-sync-alt"></i> Renewal Status</button>
-                                <button class="btn-small btn-outline"><i class="fas fa-check"></i> Mark Resolved</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="pagination-controls">
-                    <button class="btn-pagination disabled"><i class="fas fa-chevron-left"></i> Previous</button>
-                    <div class="pagination-info">Page 1 of 4</div>
-                    <button class="btn-pagination">Next <i class="fas fa-chevron-right"></i></button>
+                <div class="notification-text">
+                    <h3>Weather Alert - Heavy Rain Expected</h3>
+                    <p>Meteorological department has issued heavy rainfall warning for March 13-14 in Surat region (UKAI TPS).</p>
+                    <span class="notification-time">March 10, 2025 • 09:10 AM</span>
                 </div>
             </div>
             
-            <!-- Alert History -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>Recently Resolved Alerts</h2>
-                    <div class="actions">
-                        <button><i class="fas fa-sync-alt"></i></button>
-                        <button><i class="fas fa-expand"></i></button>
-                    </div>
+            <div class="notification-item">
+                <div class="notification-icon info">
+                    <i class="fas fa-info-circle"></i>
                 </div>
-                <div class="table-container">
-                    <table class="alert-history-table">
-                        <thead>
-                            <tr>
-                                <th>Alert ID</th>
-                                <th>Description</th>
-                                <th>Plant</th>
-                                <th>Category</th>
-                                <th>Severity</th>
-                                <th>Created</th>
-                                <th>Resolved</th>
-                                <th>Resolution Time</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>ALT-2025-3254</td>
-                                <td>Coal transport delay due to road construction</td>
-                                <td>BLTPS</td>
-                                <td>Logistics</td>
-                                <td><span class="status-badge warning">Warning</span></td>
-                                <td>Mar 5, 09:20</td>
-                                <td>Mar 8, 14:15</td>
-                                <td>77h 55m</td>
-                                <td><a href="#" class="view-link">Details</a></td>
-                            </tr>
-                            <tr>
-                                <td>ALT-2025-3248</td>
-                                <td>Low calorific value in recent delivery</td>
-                                <td>KLTPS</td>
-                                <td>Coal Quality</td>
-                                <td><span class="status-badge critical">Critical</span></td>
-                                <td>Mar 4, 11:30</td>
-                                <td>Mar 7, 16:45</td>
-                                <td>77h 15m</td>
-                                <td><a href="#" class="view-link">Details</a></td>
-                            </tr>
-                            <tr>
-                                <td>ALT-2025-3232</td>
-                                <td>Stock level approaching minimum threshold</td>
-                                <td>UKAI TPS</td>
-                                <td>Stock Level</td>
-                                <td><span class="status-badge warning">Warning</span></td>
-                                <td>Mar 2, 08:15</td>
-                                <td>Mar 7, 10:20</td>
-                                <td>122h 05m</td>
-                                <td><a href="#" class="view-link">Details</a></td>
-                            </tr>
-                            <tr>
-                                <td>ALT-2025-3221</td>
-                                <td>System maintenance scheduled</td>
-                                <td>All Plants</td>
-                                <td>System</td>
-                                <td><span class="status-badge info">Info</span></td>
-                                <td>Feb 28, 13:40</td>
-                                <td>Mar 5, 09:30</td>
-                                <td>115h 50m</td>
-                                <td><a href="#" class="view-link">Details</a></td>
-                            </tr>
-                            <tr>
-                                <td>ALT-2025-3216</td>
-                                <td>Supplier payment reminder</td>
-                                <td>SLPP</td>
-                                <td>Financial</td>
-                                <td><span class="status-badge info">Info</span></td>
-                                <td>Feb 27, 10:15</td>
-                                <td>Mar 5, 11:20</td>
-                                <td>145h 05m</td>
-                                <td><a href="#" class="view-link">Details</a></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="pagination-controls">
-                    <button class="btn-pagination disabled"><i class="fas fa-chevron-left"></i> Previous</button>
-                    <div class="pagination-info">Page 1 of 8</div>
-                    <button class="btn-pagination">Next <i class="fas fa-chevron-right"></i></button>
+                <div class="notification-text">
+                    <h3>Contract Nearing Expiry - KLTPS</h3>
+                    <p>Contract #GS-2024-LT-451 with Supplier XYZ Coal Ltd. expires in 15 days.</p>
+                    <span class="notification-time">March 8, 2025 • 10:15 AM</span>
                 </div>
             </div>
-        </main>
+            
+            <div class="notification-item">
+                <div class="notification-icon info">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="notification-text">
+                    <h3>System Maintenance Scheduled</h3>
+                    <p>Scheduled maintenance on March 20, 2025 from 22:00 to 02:00. System will be unavailable during this time.</p>
+                    <span class="notification-time">March 7, 2025 • 14:30 PM</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="notification-footer">
+            <a href="">View All Notifications</a>
+        </div>
     </div>
     
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Gujarat State Electricity Corporation Limited (GSECL). All rights reserved.</p>
-        </div>
-    </footer>
-    
     <script>
-        // Mobile menu toggle functionality
         document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuToggle = document.createElement('button');
-            mobileMenuToggle.className = 'mobile-menu-toggle';
-            mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            const closeButton = document.getElementById('closeButton');
             
-            const sidebar = document.querySelector('.sidebar');
-            
-            if (window.innerWidth <= 768) {
-                sidebar.classList.add('sidebar-hidden');
-                document.querySelector('.content').before(mobileMenuToggle);
-            }
-            
-            mobileMenuToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('sidebar-hidden');
-                sidebar.classList.toggle('sidebar-visible');
-            });
-            
-            window.addEventListener('resize', function() {
-                if (window.innerWidth <= 768) {
-                    if (!document.querySelector('.mobile-menu-toggle')) {
-                        document.querySelector('.content').before(mobileMenuToggle);
-                    }
-                    sidebar.classList.add('sidebar-hidden');
-                    sidebar.classList.remove('sidebar-visible');
-                } else {
-                    sidebar.classList.remove('sidebar-hidden');
-                    sidebar.classList.remove('sidebar-visible');
-                    if (document.querySelector('.mobile-menu-toggle')) {
-                        document.querySelector('.mobile-menu-toggle').remove();
-                    }
-                }
-            });
-            
-            // Add click event listeners to filters
-            document.querySelectorAll('.filter-group select, .filter-group input').forEach(input => {
-                input.addEventListener('change', function() {
-                    // In a real application, this would trigger the filter functionality
-                    console.log('Filter changed:', this.id, 'New value:', this.value);
-                });
-            });
-            
-            // Add click event listeners to alert action buttons
-            document.querySelectorAll('.alert-actions button').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    // In a real application, this would trigger the respective action
-                    console.log('Alert action clicked:', this.textContent.trim());
-                });
-            });
-        });
-
-        // Add dropdown functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const profileBtn = document.querySelector('.profile-btn');
-            const dropdownMenu = document.querySelector('.dropdown-menu');
-
-            profileBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                dropdownMenu.classList.toggle('show');
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!profileBtn.contains(e.target)) {
-                    dropdownMenu.classList.remove('show');
-                }
+            closeButton.addEventListener('click', function() {
+                // Add a fade-out effect before redirecting
+                const notificationContainer = document.querySelector('.notification-container');
+                notificationContainer.style.transition = 'opacity 0.3s ease';
+                notificationContainer.style.opacity = '0';
+                
+                // Redirect to dashboard after a short delay to allow the fade animation
+                setTimeout(function() {
+                    window.location.href = "{{ ('dashboard') }}";
+                }, 300);
             });
         });
     </script>
