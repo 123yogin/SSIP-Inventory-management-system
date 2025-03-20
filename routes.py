@@ -1,8 +1,8 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import jsonify, render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_mail import Message
 from app import app, db, mail
-from models import User
+from models import CoalInventory, User
 from forms import RegistrationForm, LoginForm, ForgotPasswordForm
 import secrets
 
@@ -81,11 +81,50 @@ def login():
         flash('Invalid username or password')
     return render_template('login.html', form=form)
 
+# Route to Insert Data
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    latest_data = CoalInventory.query.order_by(CoalInventory.id.desc()).first()
+    return render_template('dashboard.html', last_record=latest_data)
 
+# Route to Insert Data
+@app.route('/update_data', methods=['POST'])
+def update_data():
+    try:
+        # Debugging Output
+        print("Request Headers:", request.headers)
+        print("Request Content-Type:", request.content_type)
+        print("Raw Data:", request.data)
+
+        # Ensure request is JSON
+        if request.content_type != "application/json":
+            return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 400
+
+        # Get JSON data
+        data = request.get_json(force=True)  # force=True allows parsing even if headers are incorrect
+        
+        # Ensure required fields are present
+        if 'coal_stock' not in data:
+            return jsonify({"error": "Missing required field: coal_stock"}), 400
+
+        new_entry = CoalInventory(
+            coal_stock=data.get('coal_stock', 0),
+            coal_sufficiency=data.get('coal_sufficiency'),
+            daily_consumption=data.get('daily_consumption'),
+            electricity_generation=data.get('electricity_generation'),
+            coal_wastage=data.get('coal_wastage'),
+            updated_date=data.get('updated_date')
+        )
+
+        db.session.add(new_entry)
+        db.session.commit()
+        return jsonify({"message": "Data inserted successfully"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+            
 @app.route('/logout')
 def logout():
     logout_user()

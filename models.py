@@ -19,3 +19,16 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+class CoalInventory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    coal_stock = db.Column(db.Float, nullable=False)  # Stock in MT
+    coal_sufficiency = db.Column(db.Float, nullable=False)  # Days of sufficiency
+    daily_consumption = db.Column(db.Float, nullable=False)  # MT per day
+    electricity_generation = db.Column(db.Float, nullable=False)  # MW
+    coal_wastage = db.Column(db.Float, nullable=False)  # MT
+    updated_date = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)  # Add this line
+
+    def __repr__(self):
+        return f'<CoalInventory {self.id}>'
+    
