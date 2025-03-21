@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from flask_mail import Mail  # Import Flask-Mail
+from flask_mail import Mail  # type: ignore # Import Flask-Mail
 from config import Config
 
 app = Flask(__name__)
