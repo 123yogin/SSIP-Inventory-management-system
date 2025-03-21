@@ -161,7 +161,7 @@
             <ul class="nav-list">
                 <li><a href="{{ ('dashboard') }}">Dashboard</a></li>
                 <li class="active"><a href="{{ ('inventory') }}">Inventory Management</a></li>
-                <li><a href="#analytics">Predictive Analytics</a></li>
+                <li><a href="{{ ('prediction') }}">Predictive Analytics</a></li>
                 <li><a href="{{ ('procurment') }}">Procurement</a></li>
                 <li><a href="{{ ('report') }}">Reports</a></li>
             </ul>
@@ -174,7 +174,7 @@
         <aside class="sidebar">
             <ul class="sidebar-menu">
                 <li><a href="#overview"><i class="fas fa-home"></i> Overview</a></li>
-                <li><a href="#ai-predictions"><i class="fas fa-chart-line"></i> AI Predictions</a></li>
+                <li><a href="{{ ('prediction') }}"><i class="fas fa-chart-line"></i> AI Predictions</a></li>
                 <li class="active"><a href="{{ ('inventory') }}"><i class="fas fa-warehouse"></i> Stock Levels</a></li>
                 <li><a href="{{ ('transport_management') }}"><i class="fas fa-truck-moving"></i> Transport Management</a></li>
                 <li><a href="#train-logistics"><i class="fas fa-train"></i> Train Logistics</a></li>

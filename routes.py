@@ -205,3 +205,8 @@ def setting():
 def transport_management():
     return render_template('transport_management.html')
 
+
+@app.route('/prediction')
+@login_required
+def prediction():
+    return render_template('prediction.html')

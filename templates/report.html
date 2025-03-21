@@ -161,7 +161,7 @@
             <ul class="nav-list">
                 <li><a href="{{ ('dashboard') }}">Dashboard</a></li>
                 <li><a href="{{ ('inventory') }}">Inventory Management</a></li>
-                <li><a href="#analytics">Predictive Analytics</a></li>
+                <li><a href="{{ ('prediction') }}">Predictive Analytics</a></li>
                 <li><a href="{{ ('procurment') }}">Procurement</a></li>
                 <li class="active"><a href="{{ ('report') }}">Reports</a></li>
             </ul>
@@ -759,6 +759,7 @@
             // For demo purposes, we'll just show an alert
             alert('This would download the selected report(s) in the chosen format. In a real implementation, this would trigger file downloads.');
         }
+    });
     </script>
 </body>
 </html>
