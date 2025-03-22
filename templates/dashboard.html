@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="static/dashboard.css">
     <link rel="stylesheet" href="static\varstyle.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <style>
 
         /* CSS for Header Section */
@@ -301,6 +302,24 @@
         .fa-conveyor-belt::before {
             content: "\f472"; /* Using truck-loading icon as alternative */
         }
+
+        .btn-secondary {
+            background-color: #004080;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background-color: #003366;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
     </style>
 </head>
 <body>
@@ -371,7 +390,7 @@
                     <span>Dashboard</span>
                 </div>
                 <div class="page-actions">
-                    <button class="btn-secondary"><i class="fas fa-download"></i> Export</button>
+                    <button class="btn-secondary" onclick="exportToExcel()"><i class="fas fa-download"></i> Export</button>
                 </div>
             </div>
             
@@ -696,8 +715,76 @@
             // Initial calculation when page loads
             calculateCoalSufficiency();
 
-            // ... rest of your existing mobile menu and other functionality ...
+            
+        function exportToExcel() {
+            try {
+                // Get values from the input fields
+                const coalStock = document.getElementById('coal-stock').value;
+                const coalSufficiency = document.getElementById('coal-sufficiency-days').value;
+                const coalWastage = document.getElementById('coal-wastage').value;
+                const electricityProduction = document.getElementById('electricity-production').value;
+                const dailyConsumption = document.getElementById('daily-consumption').value;
+
+                // Prepare the data for Excel
+                const resourceData = [
+                    ['Resource Metrics', 'Value', 'Unit'], // Headers
+                    ['Coal Stock', coalStock, 'MT'],
+                    ['Coal Sufficiency', coalSufficiency, 'Days'],
+                    ['Coal Loss / Wastage', coalWastage, 'MT'],
+                    ['Electricity Production', electricityProduction, 'MWh'],
+                    ['Daily Consumption', dailyConsumption, 'MT']
+                ];
+
+                // Create a new workbook
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(resourceData);
+
+                // Style the worksheet
+                ws['!cols'] = [
+                    { width: 25 }, // Column A - Metric names
+                    { width: 15 }, // Column B - Values
+                    { width: 10 }  // Column C - Units
+                ];
+
+                // Add the worksheet to workbook
+                XLSX.utils.book_append_sheet(wb, ws, 'Resource Status');
+
+                // Add current date to filename
+                const currentDate = new Date().toISOString().split('T')[0];
+                const fileName = `BLTPS_Resource_Status_${currentDate}.xlsx`;
+
+                // Generate Excel file and trigger download
+                XLSX.writeFile(wb, fileName);
+
+                // Show success message (optional)
+                const successToast = document.getElementById('success-toast');
+                if (successToast) {
+                    successToast.querySelector('span').textContent = 'Data exported successfully!';
+                    successToast.classList.add('show');
+                    setTimeout(() => {
+                        successToast.classList.remove('show');
+                    }, 3000);
+                }
+
+            } catch (error) {
+                console.error('Export failed:', error);
+                alert('Failed to export data. Please try again.');
+            }
+        }
+
+        // Add click event to the export button
+        document.querySelector('.btn-secondary').addEventListener('click', exportToExcel);
+
+        // Add styling for the export button
+        document.querySelector('.btn-secondary').addEventListener('mouseover', function() {
+            this.style.backgroundColor = '#0056b3';
         });
+
+        document.querySelector('.btn-secondary').addEventListener('mouseout', function() {
+            this.style.backgroundColor = '#004080';
+        });
+            // ... rest of your existing mobile menu and other functionality ...
+    });
     </script>
     
 </body>
